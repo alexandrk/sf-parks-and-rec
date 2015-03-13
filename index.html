@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Neighbourhood Map</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1' />
+</head>
+<body>
+
+  <div id="search">
+    <input type="text" class="form-control" id="search-input" placeholder="Enter search criteria"/>
+  </div>
+
+  <div class="container-fluid" id="map-wrapper">
+      <div id="map-canvas" class="h100pct"></div>
+  </div>
+
+  <div id="navigation">
+    <div id="up-arrow">&#x25B2;</div>
+    <div id="down-arrow">&#x25BC;</div>
+  </div>
+  <div id="resultsWrapper">
+    <ul id="results">
+      <li>1</li>
+      <li>2</li>
+      <li>3</li>
+      <li>4</li>
+      <li>5</li>
+      <li>6</li>
+      <li>7</li>
+      <li>8</li>
+      <li>9</li>
+      <li>10</li>
+      <li>11</li>
+      <li>12</li>
+      <li>13</li>
+      <li>14</li>
+      <li>15</li>
+      <li>16</li>
+      <li>17</li>
+      <li>18</li>
+      <li>19</li>
+      <li>20</li>
+    </ul>
+    <div class="resultsNav"></div>
+  </div>
+
+  <script src="js/jquery.js"></script>
+  <script src="js/knockout-3.3.0.js"></script>
+  <script src="https://maps.googleapis.com/maps/api/js"></script>
+  <script src="js/jPages.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
