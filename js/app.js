@@ -96,7 +96,7 @@ $(function(global) {
             // Creating marker for each Park data object
             park.mapMarker = new google.maps.Marker({
               position: new google.maps.LatLng(park.location.lat, park.location.long),
-              map: App.map,
+              //map: App.map,
               title: park.parkname
             });
 
@@ -141,21 +141,6 @@ $(function(global) {
     });
   }
 
-  // Do steps below only after the data for the parks is done loading
-  $('body').on('parksData:loaded', function(){
-
-    //
-    ko.applyBindings({parks: App.parksCollection});
-
-    // List results pagination
-    $("div.resultsNav").jPages({
-      containerID : "results",
-      perPage: 10,
-      previous: "← prev"
-    });
-
-  });
-
   /**
    * Map Related
    --------------------------------------------------------------------------------
@@ -187,6 +172,53 @@ $(function(global) {
    --------------------------------------------------------------------------------
    */
 
+    // Do steps below only after the data for the parks is done loading
+  $('body').on('parksData:loaded', function(){
+
+    App.filtered = App.parksCollection;
+
+    var parksVM = function(){
+      this.parks = ko.observableArray( App.parksCollection.slice() );
+    };
+
+    parksVM.prototype.setMarkerMap = function(map){
+
+      App.parksCollection.forEach(function(item){
+        item.mapMarker.setMap(null);
+      });
+
+      this.parks().forEach(function(item){
+        item.mapMarker.setMap(map);
+      })
+    };
+
+    parksVM.prototype.filter = function(input)
+    {
+      if (input == "")
+      {
+        this.parks(App.parksCollection);
+      }
+      else {
+        var options = {
+          keys: ['parkname']    // keys to search in
+        };
+
+        var f = new Fuse(App.parksCollection, options);
+        this.parks(f.search(input));
+      }
+
+      App.applyPagination();
+      this.setMarkerMap(App.map);
+    };
+
+    App.parksVM = new parksVM();
+    App.parksVM.setMarkerMap(App.map);
+    ko.applyBindings(App.parksVM);
+
+    //App.applyPagination();
+
+  });
+
   // UI event handlers
   $('#up-arrow').on('click', function()
   {
@@ -205,6 +237,22 @@ $(function(global) {
       'top': '200%'
     });
   });
+
+  $('#search-input').on('keypress', function(e)
+  {
+    App.parksVM.filter(e.target.value);
+    console.log(App.parksVM.parks().length);
+
+  });
+
+  // List results pagination
+  App.applyPagination = function(){
+    $("div.resultsNav").jPages({
+      containerID : "results",
+      perPage: 15,
+      previous: "← prev"
+    });
+  }
 
   /**
    * Execution Flow
