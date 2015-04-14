@@ -1,7 +1,35 @@
-html, body, #map-canvas {
+html, body {
   height: 100%;
-  margin: 0px;
-  padding: 0px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* -----------------| Navigation |----------------- */
+
+.navbar {
+  margin-bottom: 0;
+}
+
+.navbar-inverse > .container {
+  color: white;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+}
+
+#app-name {
+  margin-top: 11px;
+}
+
+.navbar-toggle {
+  float: none;
+  margin-right: 0;
+}
+
+.navbar-inverse > .container .sub {
+  font-size: 12px;
+  top: -5px;
+  text-align: right;
 }
 
 #navigation {
@@ -11,23 +39,22 @@ html, body, #map-canvas {
   width: 100%;
 }
 
-#up-arrow, #down-arrow {
-  position: relative;
-  width: 50px;
-  padding: 5px;
-  font-size: 17px;
-  margin: 0 auto;
-  background-color: rgba(255, 255, 255, 0.5);
-  border: 2px solid grey;
-  border-radius: 5px 5px 0 0;
-  text-align: center;
+/* ----------------|     Map     |----------------- */
+#map-canvas {
+  height: 90%;
 }
+
+/* ---------------| Results List |----------------- */
 
 #resultsWrapper {
   background-color: rgba(0, 0, 0, 0.5);
+  display: none;
   position: absolute;
-  top: 200%;
   width: 100%;
+  height: 100%;
+  z-index: 1;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
 }
 
 #results > li {

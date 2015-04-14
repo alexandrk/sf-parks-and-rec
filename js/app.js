@@ -2,7 +2,26 @@ var App = {};
 
 $(function(global) {
 
-  // Model
+  /**
+   * Park Model
+   * @param obj - {
+   *  parktype,
+   *  parkname,
+   *  parkid,
+   *  location_1 {
+   *    longitude,
+   *    latitude,
+   *    human_address {
+   *      address,
+   *      city,
+   *      state
+   *    },
+   *    zipcode
+   *  },
+   *  acreage
+   * }
+   * @constructor
+   */
   var Park = function(obj)
   {
     this.parktype   = obj.parktype;
@@ -26,6 +45,58 @@ $(function(global) {
     App.map.setCenter(new google.maps.LatLng(this.location.lat, this.location.long));
     App.map.setZoom(17);
   };
+
+  /**
+   * ViewModel
+   --------------------------------------------------------------------------------
+   */
+
+  var parksVM = function(){
+
+    /**
+     * Function: showList
+     * Description: displays the overflow list of all the parks
+     * Note: used in mobile view only
+     */
+    this.showList = function(){
+      $('#resultsWrapper').slideToggle('slow');
+    };
+
+    this.parks = ko.observableArray( App.parksCollection.slice() );
+  };
+
+  parksVM.prototype.setMarkerMap = function(map){
+
+    App.parksCollection.forEach(function(item){
+      item.mapMarker.setMap(null);
+    });
+
+    this.parks().forEach(function(item){
+      item.mapMarker.setMap(map);
+    })
+  };
+
+  parksVM.prototype.filter = function(input)
+  {
+    if (input == "")
+    {
+      this.parks(App.parksCollection);
+    }
+    else {
+      var options = {
+        keys: ['parkname']    // keys to search in
+      };
+
+      var f = new Fuse(App.parksCollection, options);
+      this.parks(f.search(input));
+    }
+
+    this.setMarkerMap(App.map);
+  };
+
+  App.parksVM = new parksVM();
+  App.parksVM.setMarkerMap(App.map);
+  ko.applyBindings(App.parksVM);
 
   /**
    * getParksList
@@ -71,21 +142,21 @@ $(function(global) {
               /**
                * FIX - use delay to get GEO data from google api and save it
                * to the address bit of the park data
-                */
-              //geocoder.geocode(
-              //  { 'address': item.parkname + ', San Francisco, CA' },
-              //  function(results, status){
-              //    console.log(' status: ' + status);
-              //    console.log('results: ' + results);
-              //  }
-              //);
+               */
+                //geocoder.geocode(
+                //  { 'address': item.parkname + ', San Francisco, CA' },
+                //  function(results, status){
+                //    console.log(' status: ' + status);
+                //    console.log('results: ' + results);
+                //  }
+                //);
               item.location_1 = {
                 longtitude: "",
-                  latitude: "",
+                latitude: "",
                 human_address: {
                   address: "",
-                     city: "",
-                    state: ""
+                  city: "",
+                  state: ""
                 }
               }
             }
@@ -173,49 +244,8 @@ $(function(global) {
    */
 
     // Do steps below only after the data for the parks is done loading
-  $('body').on('parksData:loaded', function(){
+    $('body').on('parksData:loaded', function(){
 
-    App.filtered = App.parksCollection;
-
-    var parksVM = function(){
-      this.parks = ko.observableArray( App.parksCollection.slice() );
-    };
-
-    parksVM.prototype.setMarkerMap = function(map){
-
-      App.parksCollection.forEach(function(item){
-        item.mapMarker.setMap(null);
-      });
-
-      this.parks().forEach(function(item){
-        item.mapMarker.setMap(map);
-      })
-    };
-
-    parksVM.prototype.filter = function(input)
-    {
-      if (input == "")
-      {
-        this.parks(App.parksCollection);
-      }
-      else {
-        var options = {
-          keys: ['parkname']    // keys to search in
-        };
-
-        var f = new Fuse(App.parksCollection, options);
-        this.parks(f.search(input));
-      }
-
-      App.applyPagination();
-      this.setMarkerMap(App.map);
-    };
-
-    App.parksVM = new parksVM();
-    App.parksVM.setMarkerMap(App.map);
-    ko.applyBindings(App.parksVM);
-
-    //App.applyPagination();
 
   });
 
@@ -244,15 +274,6 @@ $(function(global) {
     console.log(App.parksVM.parks().length);
 
   });
-
-  // List results pagination
-  App.applyPagination = function(){
-    $("div.resultsNav").jPages({
-      containerID : "results",
-      perPage: 15,
-      previous: "← prev"
-    });
-  }
 
   /**
    * Execution Flow
