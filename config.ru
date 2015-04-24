@@ -1,2 +1,2 @@
-require 'services/yelp.rb'
+require './services/yelp.rb'
 run Sinatra::Application
