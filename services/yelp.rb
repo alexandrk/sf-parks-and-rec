@@ -1,7 +1,10 @@
 require 'sinatra'
 require 'yelp'
+require 'pry'
 
-get '/' do
+enable  :sessions, :logging
+
+get '/yelp' do
 
   content_type :json
   response['Access-Control-Allow-Origin'] = "*"
@@ -19,6 +22,15 @@ get '/' do
 
   yelp_params = {term: search_term, limit: limit}
   results = client.search(location, yelp_params)
+  #binding.pry
 
   results.to_json
+end
+
+get '/' do
+  File.new('public/index.html').readlines
+end
+
+get '/test' do
+  'this is a test'
 end

@@ -1,5 +1,7 @@
 node_modules/
-gulpfile.js
-package.json
 .idea/
 test/
+gulpfile.js
+package.json
+.gitignore
+Gemfile.lock

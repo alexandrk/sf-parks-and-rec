@@ -49,48 +49,62 @@ Park.prototype.centerMap = function(){
  * Gets parks data from sfgov.org or local copy, if present and recent
  */
 App.getParksList = function () {
+  App.parks = [];
   App.parksCollection = [];
 
-  // Retrieve list of parks from sfgov.org website
-  $.ajax({
-    dataType: 'json',
-    //async: false,
+  // If parks collection exists in the localStorage
+  if (typeof localStorage['SFParksData'] !== 'undefined')
+  {
+    App.parks = JSON.parse(localStorage['SFParksData']);
+    $('body').trigger('parksData:loaded');
+  }
+  else
+  {
+    // Retrieve list of parks from sfgov.org website
+    $.ajax({
+      dataType: 'json',
+      //async: false,
 
-    // URL for parks data from sfgov API
-    url: 'https://data.sfgov.org/resource/z76i-7s65.json',
+      // URL for parks data from sfgov API
+      url: 'https://data.sfgov.org/resource/z76i-7s65.json',
 
-    success: function(data) {
-      data.forEach(function(item) {
-        var park,
-            content,
-            infowindow;
+      success: function(data) {
+        data.forEach(function(item) {
+          var park,
+              content,
+              infowindow;
 
-        //Only process results with geo location data
-        if (typeof item.location_1 === 'object') {
+          //Only process results with geo location data
+          if (typeof item.location_1 === 'object') {
 
-          // Exclude locations outside of SF
-          if (
-              item.parkname.toUpperCase() == 'CAMP MATHER' ||
-              item.parkname.toUpperCase() == 'SHARP PARK'
-          ) {
-            return;
+            // Exclude locations outside of SF
+            if (
+                item.parkname.toUpperCase() == 'CAMP MATHER' ||
+                item.parkname.toUpperCase() == 'SHARP PARK'
+            ) {
+              return;
+            }
+
+            //Push new item into array (easily serializable)
+            App.parks.push(item);
           }
+        });
 
-          // Create new park object and add it to the list
-          park = new Park(item);
-          App.parksCollection.push(park);
-        }
-      });
+        //Store pre-processed data in localStorage
+        localStorage['SFParksData'] = JSON.stringify(App.parks);
 
-      $('body').trigger('parksData:loaded');
-    },
+        //Fire an event, signaling that parks data has been loaded
+        $('body').trigger('parksData:loaded');
+      },
 
-    error: function (xhr, textStatus, errorThrown) {
-      console.log('Failed to get parks data!');
-      console.log(errorThrown);
-    }
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Failed to get parks data!');
+        console.log(errorThrown);
+      }
 
-  });
+    });
+  }
+
 };
 
 /** -----------------------------------| ViewModel |------------------------------ */
@@ -115,13 +129,21 @@ var parksVM = function() {
   that.prepareData = function() {
     var bounds = new google.maps.LatLngBounds();
 
-    App.parksCollection.forEach(function(park) {
+    App.parks.forEach(function(item)
+    {
+      // Create park object and store it in the collection
+      var park = new Park(item);
+      App.parksCollection.push(park);
 
       park.mapMarker = createMarker(park);
       createInfoWindow(park);
+
+
       bounds.extend(park.mapMarker.position);
 
     });
+
+    delete App.parks;
 
     App.map.fitBounds(bounds);
   };
@@ -166,10 +188,31 @@ var parksVM = function() {
 
     // Adding a marker click event with content for the info window
     google.maps.event.addListener(park.mapMarker, 'mouseup', function() {
-      infowindow.open(App.map, park.mapMarker);
+      var yelpData;
 
       // Get Yelp Data for the park
       getYelpData(park);
+
+      if (typeof park.yelpData !== 'undefined') {
+        yelpData = "<img src='" + park.yelpData.img + "' />"
+        + "<img src='" + park.yelpData.rating_img + "' />"
+        + "<div class='rating'>Rating: " + park.yelpData.rating
+        + " based on " + park.yelpData.review_count + " reviews</div>"
+        + "<div class='example-review'>" + park.yelpData.example_review
+          + "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
+        + "</div>";
+        $('#current-selection .yelp-data').html(yelpData);
+      }
+
+      //debugger;
+
+      // Change marker icon on click
+      //TODO: change map marker icon to a more appropriate one
+      park.mapMarker.setIcon('images/temp_marker.jpg');
+
+      $('#current-selection .content').html(content);
+      $('#current-selection').show();
+      //infowindow.open(App.map, park.mapMarker);
     });
   }
 
@@ -182,24 +225,34 @@ var parksVM = function() {
    * description: get yelp data for a location
    */
   function getYelpData(park) {
-    //debugger;
+    var resource_YELP,
+      test = true;
+
+    resource_YELP = (test) ? "http://localhost:4567/yelp" : "https://sfparksrec.herokuapp.com/yelp/";
+
     $.ajax({
       dataType: 'json',
+      async: false,
 
-      // URL for parks data from sfgov API
-      url: 'https://sfparksrec.herokuapp.com/services/', //'http://localhost:4567/',
+      // URL for YELP service to get the data from
+      url: resource_YELP,
+
       data: {
         term: park.parkname,
         limit: 1
       },
 
       success: function(data) {
+
+        var yelpData;
+
         console.log(data);
         if (data.businesses.length == 0) {
           console.log('ERROR: ' + "no Yelp data found!");
         }
         else {
-          console.log(data.businesses[0].name, " rating: ", data.businesses[0].rating);
+          console.log(data.businesses[0].name, "rating:", data.businesses[0].rating
+            , "based on", data.businesses[0].review_count, "reviews");
           console.log(data.region.center.latitude, " ", data.region.center.longitude);
           console.log(park.location.lat, " ", park.location.long);
           console.log(
@@ -209,10 +262,27 @@ var parksVM = function() {
           );
           console.log(
               (
-              Math.abs(data.region.center.latitude - park.location.lat) > 0.001 ||
-              Math.abs(data.region.center.longitude - park.location.long) > 0.001
+              Math.abs(data.region.center.latitude - park.location.lat) > 0.002 ||
+              Math.abs(data.region.center.longitude - park.location.long) > 0.002
               ) ? 'false' : 'true'
           );
+
+          //If Yelp match found attach data to the park object, if not already present
+          if (typeof park.yelpData === 'undefined')
+          {
+            yelpData = data.businesses[0];
+
+            // Filtered park yelp data
+            park.yelpData = {
+              name: yelpData.name,
+              img: yelpData.image_url,
+              url: yelpData.url,
+              rating: yelpData.rating,
+              rating_img: yelpData.rating_img_url,
+              review_count: yelpData.review_count,
+              example_review: yelpData.snippet_text
+            }
+          }
         }
       },
 
@@ -294,14 +364,10 @@ $('#search-input').on('keyup', function(e)
 
 });
 
-/** -------------------------------| Execution Flow |---------------------------- */
-
-
-// Initialize Google Map
-App.map = mapInit('map-canvas');
-
-App.getParksList();
-App.parksVM = new parksVM();
+$('#current-selection .close').on('click', function(e)
+{
+  $(e.target).parent().parent().hide();
+});
 
 // Do steps below only after the data for the parks is done loading
 $('body').on('parksData:loaded', function()
@@ -311,7 +377,16 @@ $('body').on('parksData:loaded', function()
   App.parksVM.prepareData();
   ko.applyBindings(App.parksVM);
 
-})
+});
+
+/** -------------------------------| Execution Flow |---------------------------- */
+
+
+// Initialize Google Map
+App.map = mapInit('map-canvas');
+
+App.parksVM = new parksVM();
+App.getParksList();
 
 //TODO: connect with yelp
 //TODO: add events data (if time permits)
