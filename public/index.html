@@ -47,9 +47,30 @@
 
   <div id="current-selection">
     <div class="wrapper">
-      <div class="close">x</div>
-      <div class="yelp-data"></div>
       <div class="content"></div>
+
+      <!-- Instagram slideshow Begin -->
+      <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 500px; height: 500px;">
+
+        <!-- TODO: move both #insta-slides and #thumbnavigator into the initializeSlider func -->
+        <div id="insta-slides" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 500px; height: 500px;"></div>
+
+        <!-- thumbnail navigator container -->
+        <div u="thumbnavigator" class="jssort01" style="left: 0px; bottom: 0px;">
+          <!-- Thumbnail Item Skin Begin -->
+          <div u="slides" style="cursor: default;">
+            <div u="prototype" class="p">
+              <div class=w><div u="thumbnailtemplate" class="t"></div></div>
+              <div class=c></div>
+            </div>
+          </div>
+          <!-- Thumbnail Item Skin End -->
+        </div>
+      </div>
+      <!-- Instagram slideshow End -->
+
+      <div class="yelp-data"></div>
+
     </div>
   </div>
 
@@ -59,6 +80,8 @@
   <script src="js/knockout-3.3.0.js"></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPwm5-X6Vt0CgcIXc61vejQVkVl4qSkWw"></script>
   <script src="js/fuse.js"></script>
+  <script type="text/javascript" src="js/jssor.js"></script>
+  <script type="text/javascript" src="js/jssor.slider.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

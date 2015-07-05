@@ -174,46 +174,118 @@ var parksVM = function() {
         infowindow;
 
     // Content for Each park info window
-    content = "<h3>" + park.parkname + "</h3><br />"
-    + "<div>Type: " + park.parktype + "</div>"
-    + "<div>Size: " + park.acreage + " acres</div>"
-    + "<div>Zip Code: " + park.location.zip + "</div>";
+    //content = "<h3>" + park.parkname + "</h3><br />"
+    //+ "<div>Type: " + park.parktype + "</div>"
+    //+ "<div>Size: " + park.acreage + " acres</div>"
+    //+ "<div>Zip Code: " + park.location.zip + "</div>";
 
-    // Creating an info window for each marker object,
-    // with content coming from the template
-    infowindow = new google.maps.InfoWindow({
+    /* -------| Legacy, using an overlay div with info instead |--------
+
+     // Creating an info window for each marker object,
+     // with content coming from the template
+     infowindow = new google.maps.InfoWindow({
       content: content,
       maxWidth: 200
     });
 
+    */
+
     // Adding a marker click event with content for the info window
-    google.maps.event.addListener(park.mapMarker, 'mouseup', function() {
-      var yelpData;
+    google.maps.event.addListener(park.mapMarker, 'mouseup', function()
+    {
+      //1. Change zoom level
+      //2. Display park name / size
+      //3. Display nearby instagram photos
+      //4. Display yelp review and link to more info
+      var yelpData,
+          instaData;
 
-      // Get Yelp Data for the park
-      getYelpData(park);
+      park.centerMap();
 
-      if (typeof park.yelpData !== 'undefined') {
-        yelpData = "<img src='" + park.yelpData.img + "' />"
-        + "<img src='" + park.yelpData.rating_img + "' />"
-        + "<div class='rating'>Rating: " + park.yelpData.rating
-        + " based on " + park.yelpData.review_count + " reviews</div>"
-        + "<div class='example-review'>" + park.yelpData.example_review
-          + "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
-        + "</div>";
-        $('#current-selection .yelp-data').html(yelpData);
-      }
+      //Basic Park info
+      content = "<div class='row'>"
+                + "<h3 class='col-xs-10'>" + park.parkname + "</h3>"
+                + "<div class='col-xs-2 close'>x</div>"
+                +"</div>";
 
-      //debugger;
-
-      // Change marker icon on click
-      //TODO: change map marker icon to a more appropriate one
-      park.mapMarker.setIcon('images/temp_marker.jpg');
+      content += "<div id='breif-info' class='row'>"
+                 + "<div class='col-xs-4'><div class='table-header'>Type</div>" + park.parktype + "</div>"
+                 + "<div class='col-xs-4'><div class='table-header'>Size</div>" + park.acreage + " acres</div>"
+                 + "<div class='col-xs-4'><div class='table-header'>Zip Code</div>" + park.location.zip + "</div>"
+                 +"</div>";
 
       $('#current-selection .content').html(content);
       $('#current-selection').show();
-      //infowindow.open(App.map, park.mapMarker);
+
+      // Display nearby instagram data
+      displayInstagrams(park);
+
+      // Get Yelp Data (review and rating)
+      getYelpData(park);
+
+      if (typeof park.yelpData !== 'undefined') {
+        yelpData = "<div class='row'>"
+                   + "<div class='col-xs-4'>" + park.yelpData.name + "</div>"
+                   + "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>"
+                   + "<div class='col-xs-4'>"+ park.yelpData.review_count +" reviews</div>"
+                   +"</div>"
+                   +"<div class='example-review'>" + park.yelpData.example_review
+                   +  "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
+                   +"</div>";
+        $('#current-selection .yelp-data').html(yelpData);
+      }
     });
+  }
+
+  function displayInstagrams(park)
+  {
+    var resource_INSTAGRAM,
+        test = true;
+
+    //Clear current #insta-slides data before the call for new one is made
+    $('#insta-slides').html();
+
+
+    resource_INSTAGRAM = (test) ? "http://localhost:4567/instagram" : "https://sfparksrec.herokuapp.com/instagram";
+
+    $.ajax({
+      dataType: 'json',
+      async: false,
+
+      // URL for YELP service to get the data from
+      url: resource_INSTAGRAM,
+
+      data: {
+        lat: park.location.lat,
+        lng: park.location.long,
+        distance: calculateSearchRadius(park.acreage)
+      },
+
+      success: function(data)
+      {
+        data.forEach(function(item){
+          $('#insta-slides').append(
+              "<div>" +
+              "<img u='image' src='"+ item.images.standard_resolution.url + "' />" +
+              "<img u='thumb' src='" + item.images.thumbnail.url + "' />" +
+              "</div>"
+          )
+        });
+        initializeSlider('slider1_container');
+      },
+
+      error: function (xhr, textStatus, errorThrown) {
+        console.log('Failed to get instagram data!');
+        console.log(errorThrown);
+      }
+
+    });
+
+    //Calculates Instagram search radius in meters based on acreage of the park
+    function calculateSearchRadius(acreage){
+      var meterRadius = parseInt(Math.sqrt(acreage * 4046.86) / 3.14);
+      return (meterRadius > 30) ? meterRadius : 30;
+    }
   }
 
   // Observable array of parks data
@@ -228,7 +300,7 @@ var parksVM = function() {
     var resource_YELP,
       test = true;
 
-    resource_YELP = (test) ? "http://localhost:4567/yelp" : "https://sfparksrec.herokuapp.com/yelp/";
+    resource_YELP = (test) ? "http://localhost:4567/yelp" : "https://sfparksrec.herokuapp.com/yelp";
 
     $.ajax({
       dataType: 'json',
@@ -263,7 +335,7 @@ var parksVM = function() {
           console.log(
               (
               Math.abs(data.region.center.latitude - park.location.lat) > 0.002 ||
-              Math.abs(data.region.center.longitude - park.location.long) > 0.002
+              Math.abs(data.region.center.longitude - park.location.long) > 0.003
               ) ? 'false' : 'true'
           );
 
@@ -361,23 +433,67 @@ $('#search-input').on('keyup', function(e)
 {
   App.parksVM.filter(e.target.value);
   console.log(App.parksVM.parks().length);
-
 });
 
-$('#current-selection .close').on('click', function(e)
+$('#current-selection').on('click', '.close', function(e)
 {
-  $(e.target).parent().parent().hide();
+  $('#current-selection').hide();
 });
 
 // Do steps below only after the data for the parks is done loading
 $('body').on('parksData:loaded', function()
 {
-  console.log('loaded');
-
   App.parksVM.prepareData();
   ko.applyBindings(App.parksVM);
 
 });
+
+function initializeSlider(containerId)
+{
+  var options = {
+    $AutoPlay: false,                     //[Optional] To enable slideshow, this option must be set to true, default value is false
+    $SlideDuration: 500,                  //[Optional] Specifies default duration (swipe) for slide in milliseconds, default value is 500
+
+    $ThumbnailNavigatorOptions: {         //[Optional] Options to specify and enable thumbnail navigator or not
+      $Class: $JssorThumbnailNavigator$,  //[Required] Class to create thumbnail navigator instance
+      $ChanceToShow: 2,                   //[Required] 0 Never, 1 Mouse Over, 2 Always
+
+      $ActionMode: 1,                     //[Optional] 0 None, 1 act by click, 2 act by mouse hover, 3 both, default value is 1
+      $SpacingX: 8,                       //[Optional] Horizontal space between each thumbnail in pixel, default value is 0
+      $DisplayPieces: 7,                  //[Optional] Number of pieces to display, default value is 1
+      $ParkingPosition: 220               //[Optional] The offset position to park thumbnail
+    }
+  };
+
+  var jssor_slider1 = new $JssorSlider$(containerId, options);
+
+  function ScaleSlider() {
+    var parentWidth = $(window).width();  //$('#slider1_container').parent().width();
+    var maxWidth = 600;
+    if (parentWidth) {
+
+      //Cap max width @ maxWidth
+      parentWidth = (parentWidth > maxWidth) ? maxWidth : parentWidth;
+      jssor_slider1.$ScaleWidth(parentWidth);
+    }
+    else
+      window.setTimeout(ScaleSlider, 30);
+  }
+
+  //Scale slider after document ready
+  ScaleSlider();
+
+  //Setting blnScaleSlider so that events wouldn't be attached multiple times
+  if (typeof window.blnScaleSlider === 'undefined'){
+    //Scale slider while window load/resize/orientationchange.
+    $(window).bind("load",              ScaleSlider);
+    $(window).bind("resize",            ScaleSlider);
+    $(window).bind("orientationchange", ScaleSlider);
+
+    window.blnScaleSlider = 1;
+  }
+
+}
 
 /** -------------------------------| Execution Flow |---------------------------- */
 
