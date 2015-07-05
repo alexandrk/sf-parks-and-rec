@@ -6,6 +6,10 @@ html, body {
   position: relative;
 }
 
+.loading {
+  text-align: center;
+}
+
 /* -----------------| Navigation |----------------- */
 
 .navbar {
@@ -101,10 +105,11 @@ html, body {
 
 #current-selection .wrapper {
   background-color: rgba(255, 255, 255, 0.4);
-  padding-bottom: 10px;
   height: 100%;
   max-width: 600px;
-  overflow: hidden;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  padding-bottom: 100px;
 }
 
 #current-selection .content {

@@ -169,27 +169,8 @@ var parksVM = function() {
    * @param park {park-object}
    * description: helper function, used to create info window
    */
-  function createInfoWindow(park) {
-    var content,
-        infowindow;
-
-    // Content for Each park info window
-    //content = "<h3>" + park.parkname + "</h3><br />"
-    //+ "<div>Type: " + park.parktype + "</div>"
-    //+ "<div>Size: " + park.acreage + " acres</div>"
-    //+ "<div>Zip Code: " + park.location.zip + "</div>";
-
-    /* -------| Legacy, using an overlay div with info instead |--------
-
-     // Creating an info window for each marker object,
-     // with content coming from the template
-     infowindow = new google.maps.InfoWindow({
-      content: content,
-      maxWidth: 200
-    });
-
-    */
-
+  function createInfoWindow(park)
+  {
     // Adding a marker click event with content for the info window
     google.maps.event.addListener(park.mapMarker, 'mouseup', function()
     {
@@ -197,81 +178,109 @@ var parksVM = function() {
       //2. Display park name / size
       //3. Display nearby instagram photos
       //4. Display yelp review and link to more info
-      var yelpData,
-          instaData;
 
       park.centerMap();
-
-      //Basic Park info
-      content = "<div class='row'>"
-                + "<h3 class='col-xs-10'>" + park.parkname + "</h3>"
-                + "<div class='col-xs-2 close'>x</div>"
-                +"</div>";
-
-      content += "<div id='breif-info' class='row'>"
-                 + "<div class='col-xs-4'><div class='table-header'>Type</div>" + park.parktype + "</div>"
-                 + "<div class='col-xs-4'><div class='table-header'>Size</div>" + park.acreage + " acres</div>"
-                 + "<div class='col-xs-4'><div class='table-header'>Zip Code</div>" + park.location.zip + "</div>"
-                 +"</div>";
-
-      $('#current-selection .content').html(content);
+      proccessBasicInfo(park);
       $('#current-selection').show();
 
       // Display nearby instagram data
-      displayInstagrams(park);
+      getInstagramData(park, {test: true});
+      $('body').on('instagramData:loaded', function() {
+        proccessInstagramData(park);
+      });
 
       // Get Yelp Data (review and rating)
       getYelpData(park);
+      $('body').on('yelpData:loaded', function() {
+        processYelpData(park);
+      });
 
-      if (typeof park.yelpData !== 'undefined') {
-        yelpData = "<div class='row'>"
-                   + "<div class='col-xs-4'>" + park.yelpData.name + "</div>"
-                   + "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>"
-                   + "<div class='col-xs-4'>"+ park.yelpData.review_count +" reviews</div>"
-                   +"</div>"
-                   +"<div class='example-review'>" + park.yelpData.example_review
-                   +  "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
-                   +"</div>";
-        $('#current-selection .yelp-data').html(yelpData);
-      }
     });
   }
 
-  function displayInstagrams(park)
+  /**
+   * Function: proccessBasicInfo
+   * Description: Process and output basic park info from park-object
+   * @param park {park-object}
+   */
+  function proccessBasicInfo(park){
+    var content;
+
+    content = "<div class='row'>"
+    + "<h3 class='col-xs-10'>" + park.parkname + "</h3>"
+    + "<div class='col-xs-2 close'>x</div>"
+    +"</div>";
+
+    content += "<div id='breif-info' class='row'>"
+    + "<div class='col-xs-4'><div class='table-header'>Type</div>" + park.parktype + "</div>"
+    + "<div class='col-xs-4'><div class='table-header'>Size</div>" + park.acreage + " acres</div>"
+    + "<div class='col-xs-4'><div class='table-header'>Zip Code</div>" + park.location.zip + "</div>"
+    +"</div>";
+
+    $('#current-selection .content').html(content);
+  }
+
+  /**
+   * Function:    getInstagramData
+   * Description: get's instagram data from instagram, based on park coords,
+   *              if not already pooled and stored in the object
+   * @param park    {park-object} - also used to pass instagram data back
+   * @param params  {Object} - used to passed extra data to the function
+   */
+  function getInstagramData(park, params)
   {
-    var resource_INSTAGRAM,
-        test = true;
+    var resource_INSTAGRAM;
+    resource_INSTAGRAM = (params.test) ?
+        "http://localhost:4567/instagram" :
+        "https://sfparksrec.herokuapp.com/instagram";
 
-    //Clear current #insta-slides data before the call for new one is made
-    $('#insta-slides').html();
-
-
-    resource_INSTAGRAM = (test) ? "http://localhost:4567/instagram" : "https://sfparksrec.herokuapp.com/instagram";
+    //Calculates Instagram search radius in meters based on acreage of the park
+    function calculateSearchRadius(acreage){
+      var meterRadius = parseInt(Math.sqrt(acreage * 4046.86) / 3.14);
+      return (meterRadius > 30) ? meterRadius : 30;
+    }
 
     $.ajax({
       dataType: 'json',
-      async: false,
-
-      // URL for YELP service to get the data from
-      url: resource_INSTAGRAM,
-
+      async:    true,
+      url:      resource_INSTAGRAM,
       data: {
-        lat: park.location.lat,
-        lng: park.location.long,
+        lat:      park.location.lat,
+        lng:      park.location.long,
         distance: calculateSearchRadius(park.acreage)
+      },
+
+      beforeSend: function() {
+        $('#slider1_container').html(
+            '<div class="loading">'
+            + '<img src="images/spinner.gif" />'
+            + '<h4>Loading Instagram Data</h4>'
+            +'</div>');
+      },
+      complete: function() {
+        $('#slider1_container').html();
       },
 
       success: function(data)
       {
+        var instaData = [];
+        //Saving only the minimum instagram data required
         data.forEach(function(item){
-          $('#insta-slides').append(
-              "<div>" +
-              "<img u='image' src='"+ item.images.standard_resolution.url + "' />" +
-              "<img u='thumb' src='" + item.images.thumbnail.url + "' />" +
-              "</div>"
-          )
+          instaData.push(
+            {
+              images: {
+                standard_resolution: {
+                  url: item.images.standard_resolution.url
+                },
+                thumbnail: {
+                  url: item.images.thumbnail.url
+                }
+              }
+            }
+          );
         });
-        initializeSlider('slider1_container');
+        park.instaData = instaData;
+        $('body').trigger('instagramData:loaded');
       },
 
       error: function (xhr, textStatus, errorThrown) {
@@ -280,12 +289,45 @@ var parksVM = function() {
       }
 
     });
+  }
 
-    //Calculates Instagram search radius in meters based on acreage of the park
-    function calculateSearchRadius(acreage){
-      var meterRadius = parseInt(Math.sqrt(acreage * 4046.86) / 3.14);
-      return (meterRadius > 30) ? meterRadius : 30;
-    }
+  /**
+   * Function:    processInstagramData
+   * Description: proccesses instagram data and outputs the final html
+   * @param park  {park-object}
+   */
+  function proccessInstagramData(park)
+  {
+    var $sliderContainer = $('#slider1_container');
+
+    //Clearing slides container (to prevent pictures from a different location to be displayed)
+    $sliderContainer.html();
+
+    //Recreating the slideshow scaffolding
+    $sliderContainer.html(
+       '<div id="insta-slides" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 500px; height: 500px;"></div>'
+      + '<div u="thumbnavigator" class="jssort01" style="left: 0px; bottom: 0px;">'
+      +   '<div u="slides" style="cursor: default;">'
+      +     '<div u="prototype" class="p">'
+      +       '<div class=w><div u="thumbnailtemplate" class="t"></div></div>'
+      +       '<div class=c></div>'
+      +     '</div>'
+      +   '</div>'
+      + '</div>'
+    );
+
+    //Looping over instagram data to display images and their thumbnails
+    park.instaData.forEach(function(item){
+      $('#insta-slides').append(
+          "<div>" +
+          "<img u='image' src='"+ item.images.standard_resolution.url + "' />" +
+          "<img u='thumb' src='" + item.images.thumbnail.url + "' />" +
+          "</div>"
+      );
+    });
+
+    //Initializing slideshow
+    initializeSlider('slider1_container');
   }
 
   // Observable array of parks data
@@ -293,8 +335,8 @@ var parksVM = function() {
 
   /**
    * Function: getYelpData(park)
+   * Description: get yelp data for a location
    * @param park {park-object}
-   * description: get yelp data for a location
    */
   function getYelpData(park) {
     var resource_YELP,
@@ -304,7 +346,7 @@ var parksVM = function() {
 
     $.ajax({
       dataType: 'json',
-      async: false,
+      async: true,
 
       // URL for YELP service to get the data from
       url: resource_YELP,
@@ -312,6 +354,17 @@ var parksVM = function() {
       data: {
         term: park.parkname,
         limit: 1
+      },
+
+      beforeSend: function() {
+        $('#current-selection .yelp-data').html(
+            '<div class="loading">'
+            + '<img src="images/spinner.gif" />'
+            + '<h4>Loading Yelp Data</h4>'
+            +'</div>');
+      },
+      complete: function() {
+        $('#current-selection .yelp-data').html();
       },
 
       success: function(data) {
@@ -356,6 +409,7 @@ var parksVM = function() {
             }
           }
         }
+        $('body').trigger('yelpData:loaded');
       },
 
       error: function (xhr, textStatus, errorThrown) {
@@ -364,6 +418,25 @@ var parksVM = function() {
       }
 
     });
+  }
+
+  /**
+   * Function: proccessYelpData
+   * @param park
+   */
+  function processYelpData(park){
+    var yelpData;
+    if (typeof park.yelpData !== 'undefined') {
+      yelpData = "<div class='row'>"
+      + "<div class='col-xs-4'>" + park.yelpData.name + "</div>"
+      +   "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>"
+      +   "<div class='col-xs-4'>" + park.yelpData.review_count + " reviews</div>"
+      + "</div>"
+      + "<div class='example-review'>" + park.yelpData.example_review
+      +   "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
+      + "</div>";
+      $('#current-selection .yelp-data').html(yelpData);
+    }
   }
 
 
