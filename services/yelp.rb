@@ -55,7 +55,7 @@ get '/instagram' do
     next_results = client.media_search(params['lat'],
                                        params['lng'],
                                        {
-                                         distance: 2000,
+                                         distance: distance,
                                          max_timestamp: results.last['created_time'].to_i - 100
                                        })
     results.concat(next_results)
