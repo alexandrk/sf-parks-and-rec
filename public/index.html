@@ -13,6 +13,8 @@
 </head>
 <body>
 
+  <div id="messages"></div>
+
   <nav class="navbar navbar-inverse navbar-top">
     <div class="container">
       <div class="col-xs-2"></div>
@@ -37,11 +39,16 @@
   </div>
 
   <div id="resultsWrapper">
-    <ol id="results" data-bind="foreach: parks">
-      <li>
-        <a data-bind="text: $data.parkname, click: centerMap"></a>
-      </li>
-    </ol>
+    <div id="results" data-bind="foreach: { data: parksInRows, as: 'row' }">
+
+      <div class="row" data-bind="foreach: row">
+        <div class="col-xs-4 park-item" data-bind="click: $root.showParkInfo">
+          <div class="name"><span data-bind="text: $data.parkname"></span></div>
+          <div class="info"><span data-bind="text: $data.acreage"></span> acres</div>
+        </div>
+      </div>
+
+    </div>
     <div class="resultsNav"></div>
   </div>
 

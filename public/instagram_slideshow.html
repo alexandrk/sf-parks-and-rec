@@ -115,7 +115,18 @@
 
     });
   }
-  getInstagramData({location: {lat: 37.76905891, long: -122.48094821}});
+
+  function getParameterByName(name) {
+    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+        results = regex.exec(location.search);
+    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+  }
+
+  var lat  = getParameterByName("lat"),
+      lng = getParameterByName("lng");
+
+  getInstagramData({location: {lat: lat, lng: lng}});
   initializeSlider('slider1_container');
 
 </script>

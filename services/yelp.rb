@@ -49,9 +49,9 @@ get '/instagram' do
 
   results = client.media_search(params['lat'], params['lng'], {distance: distance})
 
-  #Get upto 100 pictures total
+  #Get upto 30 pictures total
   next_results = results
-  until results.count > 100 || next_results.count == 0 do
+  until results.count > 30 || next_results.count == 0 do
     next_results = client.media_search(params['lat'],
                                        params['lng'],
                                        {
@@ -63,25 +63,8 @@ get '/instagram' do
 
   #binding.pry
 
-  results.sort! { |x, y| y.likes["count"] <=> x.likes["count"] }
+  #results.sort! { |x, y| y.likes["count"] <=> x.likes["count"] }
   results.to_json
-
-  #html = "Count: " + results.count.to_s + "<br />"
-  #
-  ##binding.pry
-  #
-  ##results.each_with_index do |item, index|
-  ##  html += "<img src='" + item.images["low_resolution"].url + "' width='320' height='320' />"
-  ##  html += "Taken on: " + Time.at(item.created_time.to_i).to_s + "<br />"
-  ##
-  ##  html += "Number: " + index.to_s + "<br />"
-  ##
-  ##  html += ("Caption: " + item.caption['text']  + "<br />") unless item.caption.nil?
-  ##  html += "Likes: " + item.likes['count'].to_s
-  ##  html += "<br />"
-  ##end
-  ##
-  ##html
 
 end
 
