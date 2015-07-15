@@ -4,4 +4,3 @@ test/
 gulpfile.js
 package.json
 .gitignore
-Gemfile.lock
