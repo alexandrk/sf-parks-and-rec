@@ -5,6 +5,10 @@
   <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/styles.css">
+  <link rel="apple-touch-icon" href="images/touch-icons/touch-icon-iphone-60x60.png">
+  <link rel="apple-touch-icon" sizes="60x60" href="images/touch-icons/touch-icon-ipad-76x76.png">
+  <link rel="apple-touch-icon" sizes="114x114" href="images/touch-icons/touch-icon-iphone-retina-120x120.png">
+  <link rel="apple-touch-icon" sizes="144x144" href="images/touch-icons/touch-icon-ipad-retina-152x152.png">
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1' />
@@ -22,27 +26,24 @@
         <div class="col-xs-12">SAN FRANCISCO</div>
         <div class="col-xs-12 sub">PARKS &amp; REC</div>
       </div>
-      <div class="col-xs-2">
-        <button type="button" class="navbar-toggle" data-bind="click: showList">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
+      <div class="col-xs-2" id="list-trigger">
+        <button class="grid-button rearrange" type="button" role="button" aria-label="Toggle Navigation" data-bind="click: showList">
+          <span class="grid"></span>
         </button>
       </div>
     </div>
   </nav>
 
   <div id="search">
-    <input type="text" class="form-control" id="search-input" placeholder="search for a specific park / activity, e.g.: Golden Gate"/>
+    <input type="text" class="form-control" id="search-input" placeholder="search for a specific park, e.g.: Golden Gate"/>
     <div id="size-filter"></div>
   </div>
 
-  <div id="resultsWrapper">
-    <div id="results" data-bind="foreach: { data: parksInRows, as: 'row' }">
+  <div id="resultsWrapper" data-bind="with: parksInRows">
+    <div id="results" data-bind="foreach: { data: $data.parks, as: 'row' }">
 
       <div class="row" data-bind="foreach: row">
-        <div class="col-xs-4 park-item" data-bind="click: $root.showParkInfo">
+        <div data-bind="click: $root.showParkInfo, attr: {class: $parents[1].css}">
           <div class="name"><span data-bind="text: $data.parkname"></span></div>
           <div class="info"><span data-bind="text: $data.acreage"></span> acres</div>
         </div>
@@ -55,8 +56,10 @@
   <div id="current-selection">
     <div class="wrapper">
       <div class="content"></div>
-      <div id="slider1_container" style="position: relative; top: 0px; left: 0px; width: 500px; height: 500px;"></div>
-      <div class="yelp-data"></div>
+      <div id="slideshow-wrapper">
+        <div id="slider1_container" style="width: 500px; height: 500px;"></div>
+      </div>
+      <div id="yelp-data-wrapper"><div class="yelp-data"></div></div>
 
     </div>
   </div>

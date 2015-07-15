@@ -111,6 +111,7 @@ var parksVM = function() {
 
   // Creating a reference to parksVM
   var that = this;
+  that.currentPark = ko.observable();
 
   // Creating an observable array
   that.parks = ko.observableArray();
@@ -173,24 +174,22 @@ var parksVM = function() {
    */
   that.showParkInfo = function()
   {
-    var park = this,
-        $body = $('body');
-    
+    var park = this;
+
+    that.currentPark(park);
+
     park.centerMap();
     proccessBasicInfo(park);
+
+    $('#slider1_container').html('');
+    $('#yelp-data').html('');
     $('#current-selection').show();
 
-    // Display nearby instagram data
-    getInstagramData(park, {test: true});
-    $body.on('instagramData:loaded', function() {
-      proccessInstagramData(park);
-    });
+    // Get nearby Instagram data, Note: display Instagram data function is called as on event handler
+    getInstagramData(park, {test: false});
 
     // Get Yelp Data (review and rating)
-    getYelpData(park, {test: true});
-    $body.on('yelpData:loaded', function() {
-      processYelpData(park);
-    });
+    getYelpData(park, {test: false});
   };
 
   /**
@@ -238,6 +237,9 @@ var parksVM = function() {
     $('#resultsWrapper').slideToggle('slow');
   };
 
+
+  that.numberOfColumns = ko.observable((window.innerWidth >= 600 ) ? 3 : 2);
+
   /**
    * Computed Observable: parksInRows
    * Description:
@@ -247,7 +249,8 @@ var parksVM = function() {
     var parks = that.parks(),
         results = [],
         row = [],
-        numberOfCols = 3;
+        numberOfCols = that.numberOfColumns(),
+        cssClass = (numberOfCols == 3) ? 'park-item col-xs-4' : 'park-item col-xs-6';
 
     for(var i = 0; i < parks.length; i += numberOfCols) {
 
@@ -261,7 +264,7 @@ var parksVM = function() {
 
     }
 
-    return results;
+    return {parks: results, css: cssClass};
   });
 
 };
@@ -279,12 +282,7 @@ function AppException(message, source, type)
 {
   type = type || 'danger';
 
-  var content =
-      '<div class="alert alert-'+ type +' alert-dismissible" role="alert">'
-        + message
-        + '<button type="button" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>'
-      +'</div>';
-
+  var content = '<div class="alert alert-'+ type +' alert-dismissible" role="alert">'+ message +'</div>';
   $(content).hide().appendTo('#messages').fadeIn();
 }
 
@@ -298,7 +296,7 @@ function proccessBasicInfo(park){
 
   content = "<div class='row'>"
   + "<h3 class='col-xs-10'>" + park.parkname + "</h3>"
-  + "<div class='col-xs-2 close'>x</div>"
+  + "<div class='col-xs-2 close'>&#10006;</div>"
   +"</div>";
 
   content += "<div id='breif-info' class='row'>"
@@ -324,7 +322,7 @@ function getInstagramData(park, params)
       "http://localhost:4567/instagram" :
       "https://sfparksrec.herokuapp.com/instagram";
 
-  var $sliderContainer = $('#slider1_container');
+  var $slideshowWrapper = $('#slideshow-wrapper');
 
   /**
    * Function: calculateSearchRadius
@@ -350,11 +348,14 @@ function getInstagramData(park, params)
       },
 
       beforeSend: function () {
-        $sliderContainer.html(
+        $slideshowWrapper.html(
             '<div class="loading">'
             + '<img src="images/spinner.gif" />'
             + '<h4>Loading Instagram Data</h4>'
             + '</div>');
+      },
+      complete: function() {
+        $slideshowWrapper.html('');
       },
 
       success: function (data) {
@@ -379,11 +380,13 @@ function getInstagramData(park, params)
       },
 
       error: function (xhr, textStatus, errorThrown) {
-        AppException('ERROR: Could not get Instagram data, please check internet connection', 'INSTAGRAM:AJAX');
-        $sliderContainer.html('');
+        AppException('ERROR: Could not get Instagram data, please check internet connection.', 'INSTAGRAM:AJAX');
       }
 
     });
+  }
+  else {
+    $('body').trigger('instagramData:loaded');
   }
 }
 
@@ -396,12 +399,17 @@ function proccessInstagramData(park)
 {
   var $sliderContainer = $('#slider1_container');
 
-  //Clearing slides container (to prevent pictures from a different location to be displayed)
-  $sliderContainer.html('');
+  park = App.parksVM.currentPark();
+
+  // resetting sliderContainer to initial width and height (set in index.html)
+  // and hiding it, in order to display properly on the page
+  $sliderContainer.hide();
+  $sliderContainer.css('width', '500px');
+  $sliderContainer.css('height', '500px');
 
   //Recreating the slideshow scaffolding
   $sliderContainer.html(
-      '<div id="insta-slides" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0px; top: 0px; width: 500px; height: 500px;"></div>'
+      '<div id="insta-slides" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0; top: 0; width: 500px; height: 500px;"></div>'
       + '<div u="thumbnavigator" class="jssort01" style="left: 0px; bottom: 0px;">'
       +   '<div u="slides" style="cursor: default;">'
       +     '<div u="prototype" class="p">'
@@ -422,8 +430,12 @@ function proccessInstagramData(park)
     );
   });
 
-  //Initializing slideshow
+  // Initializing slideshow
   initializeSlider('slider1_container');
+
+  // showing sliderContainer after it has been scaled properly (inside initializeSlider)
+  // (part of sldierContainer display fix)
+  $sliderContainer.show();
 }
 
 /**
@@ -438,7 +450,7 @@ function getYelpData(park, params)
   resource_YELP = (params.test) ?
       "http://localhost:4567/yelp" :
       "https://sfparksrec.herokuapp.com/yelp";
-  var $yelpData = $('#current-selection').find('.yelp-data');
+  var $yelpDataWrapper = find('.yelp-data-wrapper');
 
     if (typeof park.yelpData === 'undefined') {
       $.ajax({
@@ -452,11 +464,14 @@ function getYelpData(park, params)
         },
 
         beforeSend: function () {
-          $yelpData.html(
+          $yelpDataWrapper.html(
               '<div class="loading">'
               + '<img src="images/spinner.gif" />'
               + '<h4>Loading Yelp Data</h4>'
               + '</div>');
+        },
+        complete: function() {
+          $yelpDataWrapper.html('');
         },
 
         success: function (data) {
@@ -468,12 +483,6 @@ function getYelpData(park, params)
             // Approximating if data received is the data we need, based on proximity to parks given coordinates
             var accuracyTrigger = (Math.abs(data.region.center.latitude - park.location.lat) > 0.0025
                                   || Math.abs(data.region.center.longitude - park.location.lng) > 0.003);
-
-            console.log('yelp lat: ' + data.region.center.latitude +' park lat: '+ park.location.lat);
-            console.log('yelp lat: ' + data.region.center.longitude +' park lat: '+ park.location.lng);
-
-            console.log('accuracy lat: '+ Math.abs(data.region.center.latitude - park.location.lat));
-            console.log('accuracy lng: '+ Math.abs(data.region.center.longitude - park.location.lng));
 
             // Display a warning, when accuracy is higher than predefined range.
             if (accuracyTrigger){
@@ -498,20 +507,25 @@ function getYelpData(park, params)
 
         error: function (xhr, textStatus, errorThrown) {
           AppException('ERROR: Could not get YELP data, please check internet connection.', 'YELP:AJAX');
-          $yelpData.html('');
         }
 
       });
+    }
+    else {
+      $('body').trigger('yelpData:loaded');
     }
 }
 
 /**
  * Function: proccessYelpData
- * @param park
  */
-function processYelpData(park){
-  var yelpData;
-  if (typeof park.yelpData !== 'undefined') {
+function processYelpData()
+{
+  var yelpData,
+      park = App.parksVM.currentPark();
+
+  if (typeof park.yelpData !== 'undefined')
+  {
     yelpData = "<div class='row'>"
     + "<div class='col-xs-4'>" + park.yelpData.name + "</div>"
     +   "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>"
@@ -523,6 +537,15 @@ function processYelpData(park){
     $('#current-selection').find('.yelp-data').html(yelpData);
   }
 }
+
+/** ----------------------| Resource Related Event Handlers |--------------------- */
+
+$('body').on('instagramData:loaded', function() {
+  proccessInstagramData();
+});
+$('body').on('yelpData:loaded', function() {
+  processYelpData();
+});
 
 
 /** ----------------------------------| Map Related |----------------------------- */
@@ -553,18 +576,17 @@ function mapInit(container, mapOptionsDefault) {
 $('#search-input').on('keyup', function(e)
 {
   App.parksVM.filter(e.target.value);
-  console.log(App.parksVM.parks().length);
 });
 
 $('#current-selection').on('click', '.close', function(e)
 {
-  $('#current-selection').hide();
+  $('#current-selection').hide(300);
   App.map.fitBounds(App.mapBounds);
 });
 
-$('#messages').on('click', '.close', function(e)
+$('#messages').on('click', '.alert', function(e)
 {
-  $(e.target).parents('.alert').remove();
+  $(e.target).fadeOut(300, function(){ $(this).remove();});
 });
 
 // Do steps below only after the data for the parks is done loading
@@ -572,9 +594,32 @@ $('body').on('parksData:loaded', function()
 {
   App.parksVM.prepareData();
   ko.applyBindings(App.parksVM);
-
 });
 
+$('.rearrange').on('click', function(e){
+  $('.rearrange').toggleClass('closeMenu');
+});
+
+// Delayed onload event handler for setting a number of columns for list display
+$(function()
+{
+  var timer_id;
+  $(window).resize(function()
+  {
+    clearTimeout(timer_id);
+    timer_id = setTimeout(function()
+    {
+      App.parksVM.numberOfColumns((window.innerWidth >= 600 ) ? 3 : 2);
+    }, 300);
+  });
+});
+
+/**
+ * Function: initializeSlider
+ * Description: part of the slideshow widget, runs on every display of a slideshow
+ *              does proper scaling and options setup
+ * @param containerId {string} - id of an container element for a slideshow widget
+ */
 function initializeSlider(containerId)
 {
   var options = {
@@ -594,27 +639,40 @@ function initializeSlider(containerId)
 
   var jssor_slider1 = new $JssorSlider$(containerId, options);
 
-  function ScaleSlider() {
-    var parentWidth = $('#slider1_container').parent().width();
-    if (parentWidth) {
-      jssor_slider1.$ScaleWidth(parentWidth);
+  /**
+   * Function: scaleSlider
+   * Description: helper function, scales slideshow widget and all of it's elements based on the window width
+   */
+  function scaleSlider()
+  {
+    var windowWidth = (window.innerWidth > 600) ? 600 : window.innerWidth;
+    if (windowWidth) {
+      jssor_slider1.$ScaleWidth(windowWidth);
     }
     else
-      window.setTimeout(ScaleSlider, 30);
+      window.setTimeout(scaleSlider, 30);
   }
 
-  //Scale slider after document ready
-  ScaleSlider();
+  /** ----- Event handlers for scaleSlider function ----- */
 
-  //Setting blnScaleSlider so that events wouldn't be attached multiple times
-  //if (typeof window.blnScaleSlider === 'undefined'){
-    //Scale slider while window load/resize/orientationchange.
-    $(window).bind("load",              ScaleSlider);
-    $(window).bind("resize",            ScaleSlider);
-    $(window).bind("orientationchange", ScaleSlider);
+   // scale on orientationchange
+  $(window).bind("orientationchange", scaleSlider);
 
-  //  //window.blnScaleSlider = 1;
-  //}
+  //scale on window resize
+  $(function()
+  {
+    var timer_id;
+    $(window).resize(function()
+    {
+      clearTimeout(timer_id);
+      timer_id = setTimeout(function()
+      {
+        scaleSlider();
+      }, 300);
+    });
+  });
+
+  scaleSlider();
 
 }
 

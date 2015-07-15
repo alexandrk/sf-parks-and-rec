@@ -72,7 +72,7 @@
     $(window).bind("orientationchange", ScaleSlider);
   }
 
-  function getInstagramData(park) {
+  function getInstagramData(park, distance) {
     var resource_INSTAGRAM,
         test = true;
 
@@ -87,7 +87,8 @@
 
       data: {
         lat: park.location.lat,
-        lng: park.location.long
+        lng: park.location.lng,
+        distance: distance
       },
 
       success: function(data) {
@@ -123,10 +124,11 @@
     return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
   }
 
-  var lat  = getParameterByName("lat"),
+  var lat = getParameterByName("lat"),
       lng = getParameterByName("lng");
+      dt  = getParameterByName("distance");
 
-  getInstagramData({location: {lat: lat, lng: lng}});
+  getInstagramData({location: {lat: lat, lng: lng}}, dt);
   initializeSlider('slider1_container');
 
 </script>

@@ -7,48 +7,51 @@ html, body {
 }
 
 .loading {
+  position: relative;
   text-align: center;
 }
 
-.alert {
-  border-radius: 0px;
+#messages > .alert {
+  border: none;
+  border-radius: 0;
+  cursor: pointer;
+  min-height: 52px;
+  padding: 5px 15px;
   position: absolute;
   width: 100%;
-  z-index: 1;
+  z-index: 2;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 /* -----------------| Navigation |----------------- */
 
 .navbar {
-  border-radius: 0px;
+  border-radius: 0;
   margin-bottom: 0;
 }
 
 .navbar-inverse > .container {
   color: white;
   font-family: 'Roboto', sans-serif;
-  font-size: 16px;
+  font-size: 10px;
 }
 
-#app-name {
-  margin-top: 11px;
+#app-name > .col-xs-12:first-child {
+  margin-top: 5px;
+  font-size: 20px;
+  text-align: center;
 }
 
-.navbar-toggle {
-  float: none;
-  margin-right: 0;
+.navbar > .container {
+  width: 100%;
 }
 
-@media (min-width: 600px) {
-  .navbar-toggle {
-    display: block;
-  }
-}
-
-.navbar-inverse > .container .sub {
+.navbar > .container .sub {
   font-size: 12px;
   top: -5px;
-  text-align: right;
+  text-align: center;
+  padding-left: 93px
 }
 
 #navigation {
@@ -56,6 +59,10 @@ html, body {
   top: 95%;
   position: absolute;
   width: 100%;
+}
+
+#list-trigger {
+  text-align: right;
 }
 
 /* ----------------|     Map     |----------------- */
@@ -69,8 +76,8 @@ html, body {
   background-color: rgba(255, 255, 255, 0.6);
   display: none;
   height: 100%;
-  padding: 10px;
-  top: 50px;
+  padding: 10px 10px 100px 10px;
+  top: 53px;
   overflow-y: scroll;
   position: absolute;
   right: 0;
@@ -87,7 +94,14 @@ html, body {
   min-height: 120px;
   padding: 10px;
   text-align: center;
+}
+
+#resultsWrapper .park-item.col-xs-4 {
   width: 30%;
+}
+
+#resultsWrapper .park-item.col-xs-6 {
+  width: 45%;
 }
 
 #resultsWrapper .park-item .name {
@@ -112,17 +126,8 @@ html, body {
   z-index: 1;
 }
 
-@media only screen and (max-width: 500px) {
-  #resultsWrapper, #current-selection {
-    width: 100%;
-  }
-}
-
-@media only screen and (min-width: 500px) {
-  #resultsWrapper, #current-selection {
-    width: 90%;
-    max-width: 600px;
-  }
+#resultsWrapper, #current-selection {
+  max-width: 600px;
 }
 
 #current-selection .close {
@@ -131,7 +136,7 @@ html, body {
   font-weight: normal;
   margin: 5px -10px 0 0;
   opacity: 0.8;
-  padding: 3px 8px 5px;
+  padding: 10px 8px 10px;
 }
 
 #current-selection .wrapper {
@@ -191,6 +196,13 @@ html, body {
    .jssort01 .p.pdn        (mousedown)
    */
 
+  #slider1_container {
+    display: none;
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+
  .jssort01 {
    position: absolute;
    /* size of thumbnail navigator container */
@@ -219,16 +231,16 @@ html, body {
 
 .jssort01 .w {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
 }
 
 .jssort01 .c {
   position: absolute;
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   width: 68px;
   height: 68px;
   border: #000 2px solid;
@@ -239,19 +251,19 @@ html, body {
 
 .jssort01 .pav .c {
   top: 2px;
-  _top: 0px;
+  _top: 0;
   left: 2px;
-  _left: 0px;
+  _left: 0;
   width: 68px;
   height: 68px;
-  border: #000 0px solid;
+  border: #000 0 solid;
   _border: #fff 2px solid;
   background-position: 50% 50%;
 }
 
 .jssort01 .p:hover .c {
-  top: 0px;
-  left: 0px;
+  top: 0;
+  left: 0;
   width: 70px;
   height: 70px;
   border: #fff 1px solid;
@@ -269,4 +281,77 @@ html, body {
   /* ie quirks mode adjust */
   width /**/: 72px;
   height /**/: 72px;
+}
+
+/* --------------| Nav-Icon Animation |------------ */
+.nav-icon {
+  margin: 13px;
+  width: 35px;
+}
+
+.nav-icon:after,
+.nav-icon:before,
+.nav-icon div {
+  background-color: #fff;
+  -o-border-radius: 3px;
+  -moz-border-radius: 3px;
+  -ms-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  border-radius: 3px;
+  content: '';
+  display: block;
+  height: 3px;
+  margin: 7px 0;
+  -moz-transition: all .2s ease-in-out;
+  -webkit-transition: all .2s ease-in-out;
+  transition: all .2s ease-in-out;
+}
+
+.nav-icon:hover:before {
+  transform: translateY(12px) rotate(135deg);
+  -moz-transform: translateY(12px) rotate(135deg);
+  -webkit-transform: translateY(12px) rotate(135deg);
+}
+
+.nav-icon:hover:after {
+  transform: translateY(-8px) rotate(-135deg);
+  -moz-transform: translateY(-8px) rotate(-135deg);
+  -webkit-transform: translateY(-8px) rotate(-135deg);
+}
+
+.nav-icon:hover div {
+  -moz-transform: scale(0);
+  -webkit-transform: scale(0);
+  transform: scale(0);
+}
+
+/*--------------------------*/
+.grid-button, .grid-button.rearrange.closeMenu {
+  padding: 20px;
+  cursor: pointer;
+  user-select: none;
+  display: inline-block;
+  margin: 0 11px;
+  border: none;
+  background: none;
+}
+
+.grid-button .grid{
+  width: 10px;
+  height: 10px;
+  background: #ecf0f1;
+  color: #ecf0f1;
+  transition: .3s;
+  -webkit-transition: .3s;
+  display: block;
+}
+
+.grid-button.rearrange .grid {
+  box-shadow: -12px -12px, 0 -12px, 12px -12px, -12px 0, 12px 0, -12px 12px, 0 12px, 12px 12px;
+}
+
+.grid-button.rearrange.closeMenu .grid{
+  box-shadow: 0 -10px, 0 -15px, 10px 0, -15px 0, 15px 0, -10px 0, 0 15px, 0 10px;
+  transform: rotate3d(0, 0, 1, -45deg) scale3d(0.8, 0.8, 0.8);
+  -webkit-transform: matrix3d(0.5656854249492381, -0.565685424949238, 0, 0, 0.565685424949238, 0.5656854249492381, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 1);
 }
