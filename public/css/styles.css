@@ -127,7 +127,7 @@ html, body {
 }
 
 #resultsWrapper, #current-selection {
-  max-width: 600px;
+  max-width: 560px;
 }
 
 #current-selection .close {
@@ -173,16 +173,16 @@ html, body {
   font-weight: bold;
 }
 
-.yelp-data {
+#yelp-data {
   padding: 10px;
   background-color: rgba(250, 250, 250, .5);
 }
 
-.yelp-data .col-xs-4:nth-child(2) {
+#yelp-data .col-xs-4:nth-child(2) {
   text-align: center;
 }
 
-.yelp-data .col-xs-4:nth-child(3) {
+#yelp-data .col-xs-4:nth-child(3) {
   text-align: right;
 }
 
