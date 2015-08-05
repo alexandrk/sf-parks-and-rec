@@ -159,7 +159,8 @@ var parksVM = function() {
         new google.maps.Marker({
           position: new google.maps.LatLng(park.location.lat, park.location.lng),
           map: App.map,
-          title: park.parkname
+          title: park.parkname,
+          icon: '../images/tree.png'
         })
     );
   }
@@ -322,7 +323,7 @@ function getInstagramData(park, params)
       "http://localhost:4567/instagram" :
       "https://sfparksrec.herokuapp.com/instagram";
 
-  var $slideshowWrapper = $('#slideshow-wrapper');
+  var $slideshowLoading = $('#slideshow-wrapper').find('.loading');
 
   /**
    * Function: calculateSearchRadius
@@ -348,14 +349,14 @@ function getInstagramData(park, params)
       },
 
       beforeSend: function () {
-        $slideshowWrapper.html(
+        $slideshowLoading.html(
             '<div class="loading">'
             + '<img src="images/spinner.gif" />'
             + '<h4>Loading Instagram Data</h4>'
             + '</div>');
       },
       complete: function() {
-        $slideshowWrapper.html('');
+        $slideshowLoading.html('');
       },
 
       success: function (data) {
@@ -446,11 +447,11 @@ function proccessInstagramData(park)
  */
 function getYelpData(park, params)
 {
-  var resource_YELP;
-  resource_YELP = (params.test) ?
-      "http://localhost:4567/yelp" :
-      "https://sfparksrec.herokuapp.com/yelp";
-  var $yelpDataWrapper = find('.yelp-data-wrapper');
+  var resource_YELP = (params.test) ?
+                        "http://localhost:4567/yelp" :
+                        "https://sfparksrec.herokuapp.com/yelp",
+
+      $yelpDataLoading = $('#yelp-data-wrapper').find('.loading');
 
     if (typeof park.yelpData === 'undefined') {
       $.ajax({
@@ -464,14 +465,13 @@ function getYelpData(park, params)
         },
 
         beforeSend: function () {
-          $yelpDataWrapper.html(
-              '<div class="loading">'
-              + '<img src="images/spinner.gif" />'
+          $yelpDataLoading.html(
+              '<img src="images/spinner.gif" />'
               + '<h4>Loading Yelp Data</h4>'
-              + '</div>');
+          );
         },
         complete: function() {
-          $yelpDataWrapper.html('');
+          $yelpDataLoading.html('');
         },
 
         success: function (data) {
@@ -534,7 +534,7 @@ function processYelpData()
     + "<div class='example-review'>" + park.yelpData.example_review
     +   "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
     + "</div>";
-    $('#current-selection').find('.yelp-data').html(yelpData);
+    $('#yelp-data').html(yelpData);
   }
 }
 
