@@ -179,6 +179,9 @@ var parksVM = function() {
 
     var park = this;
 
+    //hide results list, if shown (to prevent windows overlay)
+    $('.results-wrapper').hide();
+
     that.currentPark(park);
 
     park.centerMap();

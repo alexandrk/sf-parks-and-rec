@@ -36,23 +36,30 @@ body {
   color: white;
   font-family: "Roboto", sans-serif;
   font-size: 10px;
-}
-
-.app-name > .col-xs-12:first-child {
-  margin-top: 5px;
-  font-size: 20px;
-  text-align: center;
-}
-
-.navbar > .container {
   width: 100%;
 }
 
-.navbar > .container .sub {
-  font-size: 12px;
-  top: -5px;
+.app-title-part-1 {
+  font-size: 14px;
+  margin-top: 5px;
   text-align: center;
-  padding-left: 93px
+}
+
+.app-title-part-2 {
+  font-size: 12px;
+  text-align: center;
+  top: -5px;
+}
+
+@media (min-width: 350px) {
+  .app-title-part-1 {
+    font-size: 20px;
+  }
+
+  .app-title-part-2 {
+    padding-left: 93px;
+
+  }
 }
 
 .list-trigger {
@@ -70,13 +77,25 @@ body {
   background-color: rgba(255, 255, 255, 0.6);
   display: none;
   height: 100%;
-  padding: 10px 10px 100px 10px;
-  top: 53px;
+  padding: 0 20px 100px 10px;
+  overflow-x: hidden;
   overflow-y: scroll;
   position: absolute;
   right: 0;
   -webkit-overflow-scrolling: touch;
   z-index: 2;
+}
+
+@media (min-width: 850px) {
+  .results-wrapper {
+    top: 53px;
+  }
+}
+
+@media (min-width: 380px) {
+  .results-wrapper {
+    padding: 0 10px 100px 10px;
+  }
 }
 
 .results-wrapper .park-item {
@@ -326,7 +345,7 @@ body {
 /*--------------------------*/
 .grid-button,
 .grid-button.rearrange.closeMenu {
-  padding: 20px;
+  padding: 20px 10px;
   cursor: pointer;
   user-select: none;
   display: inline-block;
