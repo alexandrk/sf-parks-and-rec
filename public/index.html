@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <title>Neighbourhood Map</title>
-  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
+  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="css/styles.css">
   <link rel="apple-touch-icon" href="images/touch-icons/touch-icon-iphone-60x60.png">
@@ -17,16 +17,16 @@
 </head>
 <body>
 
-  <div id="messages"></div>
+  <div id="messages" class="alerts-wrapper"></div>
 
   <nav class="navbar navbar-inverse navbar-top">
     <div class="container">
       <div class="col-xs-2"></div>
-      <div class="col-xs-8" id="app-name">
+      <div class="col-xs-8 app-name">
         <div class="col-xs-12">SAN FRANCISCO</div>
         <div class="col-xs-12 sub">PARKS &amp; REC</div>
       </div>
-      <div class="col-xs-2" id="list-trigger">
+      <div class="col-xs-2 list-trigger" id="list-trigger">
         <button class="grid-button rearrange" type="button" role="button" aria-label="Toggle Navigation" data-bind="click: showList">
           <span class="grid"></span>
         </button>
@@ -39,7 +39,7 @@
     <div id="size-filter"></div>
   </div>
 
-  <div id="resultsWrapper" data-bind="with: parksInRows">
+  <div class="results-wrapper" data-bind="with: parksInRows">
     <div id="results" data-bind="foreach: { data: $data.parks, as: 'row' }">
 
       <div class="row" data-bind="foreach: row">
@@ -53,16 +53,15 @@
     <div class="resultsNav"></div>
   </div>
 
-  <div id="current-selection">
+  <div id="current-selection" class="current-selection">
     <div class="wrapper">
       <div class="content"></div>
-      <div id="slideshow-wrapper"><div class="loading"></div><div id="slider1_container" style="width: 500px; height: 500px;"></div></div>
-      <div id="yelp-data-wrapper"><div class="loading"></div><div id="yelp-data"></div></div>
-
+      <div id="slideshow-wrapper"><div class="loading"></div><div id="slider1_container" class="slider1_container" style="width: 400px; height: 400px;"></div></div>
+      <div id="yelp-data-wrapper"><div class="loading"></div><div id="yelp-data" class="yelp-data"></div></div>
     </div>
   </div>
 
-  <div id="map-canvas"></div>
+  <div id="map-canvas" class="map-canvas"></div>
 
   <script src="js/jquery.js"></script>
   <script src="js/knockout-3.3.0.js"></script>

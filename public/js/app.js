@@ -20,8 +20,9 @@ var App = {};
  * }
  * @constructor
  */
-var Park = function(obj)
-{
+var Park = function(obj){
+  "use strict";
+
   this.parktype   = obj.parktype;
   this.parkname   = obj.parkname;
   this.parkid     = obj.parkid;
@@ -41,6 +42,8 @@ var Park = function(obj)
  * description: Centers Map on the location and adjust the zoom level
  */
 Park.prototype.centerMap = function(){
+  "use strict";
+
   App.map.setCenter(new google.maps.LatLng(this.location.lat, this.location.lng));
   App.map.setZoom(17);
 };
@@ -49,19 +52,18 @@ Park.prototype.centerMap = function(){
  * Function: getParksList
  * Description: Gets parks data from sfgov.org or local copy, if present and recent
  */
-App.getParksList = function ()
-{
+App.getParksList = function (){
+  "use strict";
+
   App.parksSimpleData = [];   //Temporary parks array, is discarded after park objects collection is created
   App.parksObjects = [];      //Resetting global parkCollection array, used to store unfiltered (whole) list of parks
 
   // If parks collection exists in the localStorage
-  if (typeof localStorage['SFParksData'] !== 'undefined')
-  {
-    App.parksSimpleData = JSON.parse(localStorage['SFParksData']);
+  if (typeof localStorage.SFParksData !== 'undefined'){
+    App.parksSimpleData = JSON.parse(localStorage.SFParksData);
     $('body').trigger('parksData:loaded');
   }
-  else
-  {
+  else{
     // Retrieve list of parks from sfgov.org website
     $.ajax({
       dataType: 'json',
@@ -69,12 +71,13 @@ App.getParksList = function ()
       // URL for parks data from sfgov API
       url: 'https://data.sfgov.org/resource/z76i-7s65.json',
 
-      success: function(data) {
-        data.forEach(function(item)
-        {
+      success: function(data){
+
+        data.forEach(function(item){
+
           //Only process results with geo location data
-          if (typeof item.location_1 === 'object')
-          {
+          if (typeof item.location_1 === 'object'){
+
             // Exclude locations outside of SF
             if (
                 item.parkname.toUpperCase() == 'CAMP MATHER' ||
@@ -88,13 +91,12 @@ App.getParksList = function ()
         });
 
         //Store pre-processed data in localStorage
-        localStorage['SFParksData'] = JSON.stringify(App.parksSimpleData);
+        localStorage.SFParksData = JSON.stringify(App.parksSimpleData);
 
         //Fire an event, signaling that parks data has been loaded
         $('body').trigger('parksData:loaded');
       },
 
-      //TODO: update to show user friendly error message
       error: function (xhr, textStatus, errorThrown) {
         console.log('Failed to get parks data!');
         console.log(errorThrown);
@@ -108,6 +110,7 @@ App.getParksList = function ()
 /** -----------------------------------| ViewModel |------------------------------ */
 
 var parksVM = function() {
+  "use strict";
 
   // Creating a reference to parksVM
   var that = this;
@@ -123,12 +126,11 @@ var parksVM = function() {
    *                - adds items to map bounds collection, to set map zoom level to fit all items on screen
    *                - creates marker and attached event handler for infoWindow to each park object
    */
-  that.prepareData = function()
-  {
+  that.prepareData = function(){
+
     App.mapBounds = new google.maps.LatLngBounds();
 
-    App.parksSimpleData.forEach(function(item)
-    {
+    App.parksSimpleData.forEach(function(item){
       var park       = new Park(item);
       park.mapMarker = createMarker(park);
 
@@ -154,7 +156,7 @@ var parksVM = function() {
    * @param park {park-object}
    * @returns {google.maps.Marker}
    */
-  function createMarker(park) {
+  function createMarker(park){
     return (
         new google.maps.Marker({
           position: new google.maps.LatLng(park.location.lat, park.location.lng),
@@ -173,8 +175,8 @@ var parksVM = function() {
                   4. Displays yelp review and link to more info
    * @param park {park-object}
    */
-  that.showParkInfo = function()
-  {
+  that.showParkInfo = function(){
+
     var park = this;
 
     that.currentPark(park);
@@ -199,12 +201,12 @@ var parksVM = function() {
    *              then sets a map for a given list of parks
    * @param map
    */
-  function resetMarkers(map) {
-    App.parksObjects.forEach(function (item) {
+  function resetMarkers(map){
+    App.parksObjects.forEach(function (item){
       item.mapMarker.setMap(null);
     });
 
-    that.parks().forEach(function(park) {
+    that.parks().forEach(function(park){
       park.mapMarker.setMap(map);
     });
   }
@@ -214,8 +216,8 @@ var parksVM = function() {
    * Description: filters parks list to the ones matching user's input
    * @param input {string} - user's input
    */
-  that.filter = function(input) {
-    if (input == "") {
+  that.filter = function(input){
+    if (input === "") {
       that.parks(App.parksObjects);
     }
     else {
@@ -234,8 +236,8 @@ var parksVM = function() {
    * Description: displays the overflow list of all the parks
    * Note: used in mobile view only (bound to navbar-toggle in the html view by knockout)
    */
-  that.showList = function () {
-    $('#resultsWrapper').slideToggle('slow');
+  that.showList = function(){
+    $('.results-wrapper').slideToggle('slow');
   };
 
 
@@ -245,15 +247,14 @@ var parksVM = function() {
    * Computed Observable: parksInRows
    * Description:
    */
-  that.parksInRows = ko.computed(function ()
-  {
+  that.parksInRows = ko.computed(function(){
     var parks = that.parks(),
         results = [],
         row = [],
         numberOfCols = that.numberOfColumns(),
         cssClass = (numberOfCols == 3) ? 'park-item col-xs-4' : 'park-item col-xs-6';
 
-    for(var i = 0; i < parks.length; i += numberOfCols) {
+    for(var i = 0, length = parks.length; i < length; i += numberOfCols) {
 
       row = [];
       for (var j = 0; j < numberOfCols; ++j) {
@@ -273,14 +274,15 @@ var parksVM = function() {
 /** -------------------------------| Resources Related |-------------------------- */
 
 /**
- * Function: AppException
+ * Function: appException
  * Description: used to create apps custom exceptions
  * @param message
  * @param name
  * @param type
  */
-function AppException(message, source, type)
-{
+function appException(message, source, type){
+  "use strict";
+
   type = type || 'danger';
 
   var content = '<div class="alert alert-'+ type +' alert-dismissible" role="alert">'+ message +'</div>';
@@ -293,20 +295,21 @@ function AppException(message, source, type)
  * @param park {park-object}
  */
 function proccessBasicInfo(park){
+  "use strict";
   var content;
 
-  content = "<div class='row'>"
-  + "<h3 class='col-xs-10'>" + park.parkname + "</h3>"
-  + "<div class='col-xs-2 close'>&#10006;</div>"
-  +"</div>";
+  content = "<div class='row'>" +
+    "<h3 class='col-xs-10'>" + park.parkname + "</h3>" +
+    "<div class='col-xs-2 close'>&#10006;</div>" +
+  "</div>";
 
-  content += "<div id='breif-info' class='row'>"
-  + "<div class='col-xs-4'><div class='table-header'>Type</div>" + park.parktype + "</div>"
-  + "<div class='col-xs-4'><div class='table-header'>Size</div>" + park.acreage + " acres</div>"
-  + "<div class='col-xs-4'><div class='table-header'>Zip Code</div>" + park.location.zip + "</div>"
-  +"</div>";
+  content += "<div class='brief-info' class='row'>" +
+    "<div class='col-xs-4'><div class='table-header'>Type</div>" + park.parktype + "</div>" +
+    "<div class='col-xs-4'><div class='table-header'>Size</div>" + park.acreage + " acres</div>" +
+    "<div class='col-xs-4'><div class='table-header'>Zip Code</div>" + park.location.zip + "</div>" +
+  "</div>";
 
-  $('#current-selection .content').html(content);
+  $('#current-selection').find('.content').html(content);
 }
 
 /**
@@ -316,8 +319,8 @@ function proccessBasicInfo(park){
  * @param park    {park-object} - also used to pass instagram data back
  * @param params  {Object} - used to passed extra data to the function
  */
-function getInstagramData(park, params)
-{
+function getInstagramData(park, params){
+  "use strict";
   var resource_INSTAGRAM;
   resource_INSTAGRAM = (params.test) ?
       "http://localhost:4567/instagram" :
@@ -350,10 +353,10 @@ function getInstagramData(park, params)
 
       beforeSend: function () {
         $slideshowLoading.html(
-            '<div class="loading">'
-            + '<img src="images/spinner.gif" />'
-            + '<h4>Loading Instagram Data</h4>'
-            + '</div>');
+            '<div class="loading">' +
+              '<img src="images/spinner.gif" />' +
+              '<h4>Loading Instagram Data</h4>' +
+            '</div>');
       },
       complete: function() {
         $slideshowLoading.html('');
@@ -363,8 +366,7 @@ function getInstagramData(park, params)
         var instaData = [];
         //Saving only the minimum instagram data required
         data.forEach(function (item) {
-          instaData.push(
-              {
+          instaData.push({
                 images: {
                   standard_resolution: {
                     url: item.images.standard_resolution.url
@@ -381,7 +383,7 @@ function getInstagramData(park, params)
       },
 
       error: function (xhr, textStatus, errorThrown) {
-        AppException('ERROR: Could not get Instagram data, please check internet connection.', 'INSTAGRAM:AJAX');
+        appException('ERROR: Could not get Instagram data, please check internet connection.', 'INSTAGRAM:AJAX');
       }
 
     });
@@ -396,8 +398,9 @@ function getInstagramData(park, params)
  * Description: proccesses instagram data and outputs the final html
  * @param park  {park-object}
  */
-function proccessInstagramData(park)
-{
+function proccessInstagramData(park){
+  "use strict";
+
   var $sliderContainer = $('#slider1_container');
 
   park = App.parksVM.currentPark();
@@ -410,23 +413,23 @@ function proccessInstagramData(park)
 
   //Recreating the slideshow scaffolding
   $sliderContainer.html(
-      '<div id="insta-slides" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0; top: 0; width: 500px; height: 500px;"></div>'
-      + '<div u="thumbnavigator" class="jssort01" style="left: 0px; bottom: 0px;">'
-      +   '<div u="slides" style="cursor: default;">'
-      +     '<div u="prototype" class="p">'
-      +       '<div class=w><div u="thumbnailtemplate" class="t"></div></div>'
-      +       '<div class=c></div>'
-      +     '</div>'
-      +   '</div>'
-      + '</div>'
+      '<div id="insta-slides" u="slides" style="cursor: move; position: absolute; overflow: hidden; left: 0; top: 0; width: 500px; height: 500px;"></div>' +
+      '<div u="thumbnavigator" class="jssort01" style="left: 0px; bottom: 0px;">' +
+        '<div u="slides" style="cursor: default;">' +
+          '<div u="prototype" class="p">' +
+            '<div class=w><div u="thumbnailtemplate" class="t"></div></div>' +
+            '<div class=c></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
   );
 
   //Looping over instagram data to display images and their thumbnails
   park.instaData.forEach(function(item){
     $('#insta-slides').append(
         "<div>" +
-        "<img u='image' src='"+ item.images.standard_resolution.url + "' />" +
-        "<img u='thumb' src='" + item.images.thumbnail.url + "' />" +
+          "<img u='image' src='"+ item.images.standard_resolution.url + "' />" +
+          "<img u='thumb' src='" + item.images.thumbnail.url + "' />" +
         "</div>"
     );
   });
@@ -445,8 +448,8 @@ function proccessInstagramData(park)
  * @param park {park-object}
  * @param params  {Object} - used to passed extra data to the function
  */
-function getYelpData(park, params)
-{
+function getYelpData(park, params){
+  "use strict";
   var resource_YELP = (params.test) ?
                         "http://localhost:4567/yelp" :
                         "https://sfparksrec.herokuapp.com/yelp",
@@ -466,8 +469,8 @@ function getYelpData(park, params)
 
         beforeSend: function () {
           $yelpDataLoading.html(
-              '<img src="images/spinner.gif" />'
-              + '<h4>Loading Yelp Data</h4>'
+            '<img src="images/spinner.gif" />' +
+            '<h4>Loading Yelp Data</h4>'
           );
         },
         complete: function() {
@@ -476,17 +479,17 @@ function getYelpData(park, params)
 
         success: function (data) {
           var yelpData;
-          if (data.businesses.length == 0) {
-            AppException('No YELP data found for this park', 'YELP:AJAX');
+          if (data.businesses.length === 0) {
+            appException('No YELP data found for this park', 'YELP:AJAX');
           }
           else {
             // Approximating if data received is the data we need, based on proximity to parks given coordinates
-            var accuracyTrigger = (Math.abs(data.region.center.latitude - park.location.lat) > 0.0025
-                                  || Math.abs(data.region.center.longitude - park.location.lng) > 0.003);
+            var accuracyTrigger = (Math.abs(data.region.center.latitude - park.location.lat) > 0.0025 ||
+                                   Math.abs(data.region.center.longitude - park.location.lng) > 0.003);
 
             // Display a warning, when accuracy is higher than predefined range.
             if (accuracyTrigger){
-              AppException('WARNING: Low Accuracy, YELP result might be for a different entity.', 'YELP:AJAX', 'warning');
+              appException('WARNING: Low Accuracy, YELP result might be for a different entity.', 'YELP:AJAX', 'warning');
             }
 
             yelpData = data.businesses[0];
@@ -500,13 +503,13 @@ function getYelpData(park, params)
               rating_img: yelpData.rating_img_url,
               review_count: yelpData.review_count,
               example_review: yelpData.snippet_text
-            }
+            };
           }
           $('body').trigger('yelpData:loaded');
         },
 
         error: function (xhr, textStatus, errorThrown) {
-          AppException('ERROR: Could not get YELP data, please check internet connection.', 'YELP:AJAX');
+          appException('ERROR: Could not get YELP data, please check internet connection.', 'YELP:AJAX');
         }
 
       });
@@ -519,28 +522,28 @@ function getYelpData(park, params)
 /**
  * Function: proccessYelpData
  */
-function processYelpData()
-{
+function processYelpData(){
+  "use strict";
   var yelpData,
       park = App.parksVM.currentPark();
 
-  if (typeof park.yelpData !== 'undefined')
-  {
-    yelpData = "<div class='row'>"
-    + "<div class='col-xs-4'>" + park.yelpData.name + "</div>"
-    +   "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>"
-    +   "<div class='col-xs-4'>" + park.yelpData.review_count + " reviews</div>"
-    + "</div>"
-    + "<div class='example-review'>" + park.yelpData.example_review
-    +   "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>"
-    + "</div>";
+  if (typeof park.yelpData !== 'undefined'){
+
+    yelpData = "<div class='row'>" +
+    "<div class='col-xs-4'>" + park.yelpData.name + "</div>" +
+      "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>" +
+      "<div class='col-xs-4'>" + park.yelpData.review_count + " reviews</div>" +
+    "</div>" +
+    "<div class='example-review'>" + park.yelpData.example_review +
+      "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>" +
+    "</div>";
     $('#yelp-data').html(yelpData);
   }
 }
 
 /** ----------------------| Resource Related Event Handlers |--------------------- */
 
-$('body').on('instagramData:loaded', function() {
+$('body').on('instagramData:loaded', function(){
   proccessInstagramData();
 });
 $('body').on('yelpData:loaded', function() {
@@ -555,14 +558,15 @@ $('body').on('yelpData:loaded', function() {
  * @param container {string} - id of a map container
  * @param mapOptionsDefault {object} - map options, if empty -> uses default options
  */
-function mapInit(container, mapOptionsDefault) {
-
+function mapInit(container, mapOptionsDefault){
+  "use strict";
+  var mapOptions;
   mapOptions = mapOptionsDefault || {
-    center: new google.maps.LatLng(37.768920, -122.484255)
-    , zoom: 15
-    , mapTypeId: google.maps.MapTypeId.MAP      //TERRAIN
-    //, disableDefaultUI: true
-    , zoomControlOptions: {
+    center: new google.maps.LatLng(37.768920, -122.484255),
+     zoom: 15,
+     mapTypeId: google.maps.MapTypeId.MAP,      //TERRAIN
+     //disableDefaultUI: true,
+     zoomControlOptions: {
       //position: google.maps.ControlPosition.BOTTOM_LEFT,
       style: google.maps.ZoomControlStyle.SMALL
     }
@@ -573,42 +577,41 @@ function mapInit(container, mapOptionsDefault) {
 
 /** -----------------------------| UI Event Handlers |---------------------------- */
 // Using 'keyup' to properly detect empty field event
-$('#search-input').on('keyup', function(e)
-{
+$('#search-input').on('keyup', function(e){
+  "use strict";
   App.parksVM.filter(e.target.value);
 });
 
-$('#current-selection').on('click', '.close', function(e)
-{
+$('#current-selection').on('click', '.close', function(e){
+  "use strict";
   $('#current-selection').hide(300);
-  App.map.fitBounds(App.mapBounds);
+  //App.map.fitBounds(App.mapBounds);
 });
 
-$('#messages').on('click', '.alert', function(e)
-{
+$('#messages').on('click', '.alert', function(e){
+  "use strict";
   $(e.target).fadeOut(300, function(){ $(this).remove();});
 });
 
 // Do steps below only after the data for the parks is done loading
-$('body').on('parksData:loaded', function()
-{
+$('body').on('parksData:loaded', function(){
+  "use strict";
   App.parksVM.prepareData();
   ko.applyBindings(App.parksVM);
 });
 
 $('.rearrange').on('click', function(e){
+  "use strict";
   $('.rearrange').toggleClass('closeMenu');
 });
 
 // Delayed onload event handler for setting a number of columns for list display
-$(function()
-{
+$(function(){
+  "use strict";
   var timer_id;
-  $(window).resize(function()
-  {
+  $(window).resize(function(){
     clearTimeout(timer_id);
-    timer_id = setTimeout(function()
-    {
+    timer_id = setTimeout(function(){
       App.parksVM.numberOfColumns((window.innerWidth >= 600 ) ? 3 : 2);
     }, 300);
   });
@@ -620,8 +623,8 @@ $(function()
  *              does proper scaling and options setup
  * @param containerId {string} - id of an container element for a slideshow widget
  */
-function initializeSlider(containerId)
-{
+function initializeSlider(containerId){
+  "use strict";
   var options = {
     $AutoPlay: false,                     //[Optional] To enable slideshow, this option must be set to true, default value is false
     $SlideDuration: 500,                  //[Optional] Specifies default duration (swipe) for slide in milliseconds, default value is 500
@@ -643,8 +646,7 @@ function initializeSlider(containerId)
    * Function: scaleSlider
    * Description: helper function, scales slideshow widget and all of it's elements based on the window width
    */
-  function scaleSlider()
-  {
+  function scaleSlider(){
     var windowWidth = (window.innerWidth > 600) ? 600 : window.innerWidth;
     if (windowWidth) {
       jssor_slider1.$ScaleWidth(windowWidth);
@@ -659,14 +661,11 @@ function initializeSlider(containerId)
   $(window).bind("orientationchange", scaleSlider);
 
   //scale on window resize
-  $(function()
-  {
+  $(function(){
     var timer_id;
-    $(window).resize(function()
-    {
+    $(window).resize(function(){
       clearTimeout(timer_id);
-      timer_id = setTimeout(function()
-      {
+      timer_id = setTimeout(function(){
         scaleSlider();
       }, 300);
     });
@@ -684,5 +683,3 @@ App.map = mapInit('map-canvas');
 
 App.parksVM = new parksVM();
 App.getParksList();
-
-//TODO: add events data (if time permits)
