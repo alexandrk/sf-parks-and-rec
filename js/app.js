@@ -162,7 +162,7 @@ var parksVM = function() {
           position: new google.maps.LatLng(park.location.lat, park.location.lng),
           map: App.map,
           title: park.parkname,
-          icon: '../images/tree.png'
+          icon: 'images/tree.png'
         })
     );
   }
