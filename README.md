@@ -1,6 +1,9 @@
 San Francisco Parks and Playgrounds Map
 =======================================
 
+### DEMO ###
+> You can access the working app at [here](https://alexandrk.github.io/sf-parks-and-rec/) or **clone** the repo to you computer and launch the **public/index.html**
+
 ### BASICS ###
 > The App grabs publicly available data from https://data.sfgov.org for public parks and playgrounds in San Francisco and displays it on the google map with additional data from YELP and Instagram API.
 
