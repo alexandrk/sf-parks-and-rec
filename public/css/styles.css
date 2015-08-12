@@ -34,8 +34,7 @@ body {
 
 .navbar-inverse > .container {
   color: white;
-  font-family: "Roboto", sans-serif;
-  font-size: 10px;
+  font: 10px "Roboto", sans-serif;
   width: 100%;
 }
 
@@ -58,7 +57,6 @@ body {
 
   .app-title-part-2 {
     padding-left: 93px;
-
   }
 }
 
@@ -67,6 +65,7 @@ body {
 }
 
 /* ----------------|     Map     |----------------- */
+
 .map-canvas {
   height: 90%;
 }
@@ -105,6 +104,7 @@ body {
   cursor: pointer;
   margin: 5px;
   min-height: 120px;
+  min-width: 140px;
   padding: 10px;
   text-align: center;
 }
@@ -142,6 +142,7 @@ body {
 .results-wrapper,
 .current-selection {
   max-width: 560px;
+  min-width: 310px;
 }
 
 .current-selection .close {
@@ -202,30 +203,29 @@ body {
 }
 
 /* -------| JSSOR thumbnail navigation skin |------ */
-
-   /* jssor slider thumbnail navigator skin 01 css */
-   /*
+/* jssor slider thumbnail navigator skin 01 css */
+/*
    .jssort01 .p            (normal)
    .jssort01 .p:hover      (normal mouseover)
    .jssort01 .p.pav        (active)
    .jssort01 .p.pdn        (mousedown)
-   */
+*/
 
-  .slider1_container {
-    display: none;
-    position: relative;
-    top: 0;
-    left: 0;
-  }
+.slider1_container {
+  display: none;
+  position: relative;
+  top: 0;
+  left: 0;
+}
 
- .jssort01 {
-   position: absolute;
-   /* size of thumbnail navigator container */
-   width: 500px;
-   height: 100px;
-   overflow: hidden;
-   background-color: rgba(5, 5, 5, .4);
- }
+.jssort01 {
+  position: absolute;
+  /* size of thumbnail navigator container */
+  width: 500px;
+  height: 100px;
+  overflow: hidden;
+  background-color: rgba(5, 5, 5, .4);
+}
 
 .jssort01 .p {
   position: absolute;
@@ -301,6 +301,7 @@ body {
 }
 
 /* --------------| Nav-Icon Animation |------------ */
+
 .nav-icon {
   margin: 13px;
   width: 35px;
@@ -342,7 +343,6 @@ body {
   transform: scale(0);
 }
 
-/*--------------------------*/
 .grid-button,
 .grid-button.rearrange.closeMenu {
   padding: 20px 10px;
@@ -354,7 +354,7 @@ body {
   background: none;
 }
 
-.grid-button .grid{
+.grid-button .grid {
   width: 10px;
   height: 10px;
   background: #ecf0f1;
@@ -368,7 +368,7 @@ body {
   box-shadow: -12px -12px, 0 -12px, 12px -12px, -12px 0, 12px 0, -12px 12px, 0 12px, 12px 12px;
 }
 
-.grid-button.rearrange.closeMenu .grid{
+.grid-button.rearrange.closeMenu .grid {
   box-shadow: 0 -10px, 0 -15px, 10px 0, -15px 0, 15px 0, -10px 0, 0 15px, 0 10px;
   transform: rotate3d(0, 0, 1, -45deg) scale3d(0.8, 0.8, 0.8);
   -webkit-transform: matrix3d(0.5656854249492381, -0.565685424949238, 0, 0, 0.565685424949238, 0.5656854249492381, 0, 0, 0, 0, 0.8, 0, 0, 0, 0, 1);
