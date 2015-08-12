@@ -1,74 +1,74 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <title>Neighbourhood Map</title>
-  <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="apple-touch-icon" href="images/touch-icons/touch-icon-iphone-60x60.png">
-  <link rel="apple-touch-icon" sizes="60x60" href="images/touch-icons/touch-icon-ipad-76x76.png">
-  <link rel="apple-touch-icon" sizes="114x114" href="images/touch-icons/touch-icon-iphone-retina-120x120.png">
-  <link rel="apple-touch-icon" sizes="144x144" href="images/touch-icons/touch-icon-ipad-retina-152x152.png">
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1' />
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-</head>
-<body>
+  <head>
+    <title>Neighbourhood Map</title>
+    <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet'>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="apple-touch-icon" href="images/touch-icons/touch-icon-iphone-60x60.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="images/touch-icons/touch-icon-ipad-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="images/touch-icons/touch-icon-iphone-retina-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="images/touch-icons/touch-icon-ipad-retina-152x152.png">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1' />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+  </head>
+  <body>
 
-  <div id="messages" class="alerts-wrapper"></div>
+    <div id="messages" class="alerts-wrapper"></div>
 
-  <nav class="navbar navbar-inverse navbar-top">
-    <div class="container">
-      <div class="col-xs-2"></div>
-      <div class="col-xs-8 app-name">
-        <div class="col-xs-12 app-title-part-1">SAN FRANCISCO</div>
-        <div class="col-xs-12 app-title-part-2">PARKS &amp; REC</div>
-      </div>
-      <div class="col-xs-2 list-trigger" id="list-trigger">
-        <button class="grid-button rearrange" type="button" role="button" aria-label="Toggle Navigation" data-bind="click: showList">
-          <span class="grid"></span>
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <div id="search">
-    <input type="text" class="form-control" id="search-input" placeholder="search for a specific park, e.g.: Golden Gate"/>
-    <div id="size-filter"></div>
-  </div>
-
-  <div class="results-wrapper" data-bind="with: parksInRows">
-    <div id="results" data-bind="foreach: { data: $data.parks, as: 'row' }">
-
-      <div class="row" data-bind="foreach: row">
-        <div data-bind="click: $root.showParkInfo, attr: {class: $parents[1].css}">
-          <div class="name"><span data-bind="text: $data.parkname"></span></div>
-          <div class="info"><span data-bind="text: $data.acreage"></span> acres</div>
+    <nav class="navbar navbar-inverse navbar-top">
+      <div class="container">
+        <div class="col-xs-2"></div>
+        <div class="col-xs-8 app-name">
+          <div class="col-xs-12 app-title-part-1">SAN FRANCISCO</div>
+          <div class="col-xs-12 app-title-part-2">PARKS &amp; REC</div>
+        </div>
+        <div class="col-xs-2 list-trigger" id="list-trigger">
+          <button class="grid-button rearrange" type="button" role="button" aria-label="Toggle Navigation" data-bind="click: showList">
+            <span class="grid"></span>
+          </button>
         </div>
       </div>
+    </nav>
 
+    <div id="search">
+      <input type="text" class="form-control" id="search-input" placeholder="search for a specific park, e.g.: Golden Gate"/>
+      <div id="size-filter"></div>
     </div>
-    <div class="resultsNav"></div>
-  </div>
 
-  <div id="current-selection" class="current-selection">
-    <div class="wrapper">
-      <div class="content"></div>
-      <div id="slideshow-wrapper"><div class="loading"></div><div id="slider1_container" class="slider1_container" style="width: 400px; height: 400px;"></div></div>
-      <div id="yelp-data-wrapper"><div class="loading"></div><div id="yelp-data" class="yelp-data"></div></div>
+    <div class="results-wrapper" data-bind="with: parksInRows">
+      <div id="results" data-bind="foreach: { data: $data.parks, as: 'row' }">
+
+        <div class="row" data-bind="foreach: row">
+          <div data-bind="click: $root.showParkInfo, attr: {class: $parents[1].css}">
+            <div class="name"><span data-bind="text: $data.parkname"></span></div>
+            <div class="info"><span data-bind="text: $data.acreage"></span> acres</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="resultsNav"></div>
     </div>
-  </div>
 
-  <div id="map-canvas" class="map-canvas"></div>
+    <div id="current-selection" class="current-selection">
+      <div class="wrapper">
+        <div class="content"></div>
+        <div id="slideshow-wrapper"><div class="loading"></div><div id="slider1_container" class="slider1_container" style="width: 400px; height: 400px;"></div></div>
+        <div id="yelp-data-wrapper"><div class="loading"></div><div id="yelp-data" class="yelp-data"></div></div>
+      </div>
+    </div>
 
-  <script src="js/jquery.js"></script>
-  <script src="js/knockout-3.3.0.js"></script>
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPwm5-X6Vt0CgcIXc61vejQVkVl4qSkWw"></script>
-  <script src="js/fuse.js"></script>
-  <script type="text/javascript" src="js/jssor.js"></script>
-  <script type="text/javascript" src="js/jssor.slider.js"></script>
-  <script src="js/app.js"></script>
-</body>
+    <div id="map-canvas" class="map-canvas"></div>
+
+    <script src="js/jquery.js"></script>
+    <script src="js/knockout-3.3.0.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAPwm5-X6Vt0CgcIXc61vejQVkVl4qSkWw"></script>
+    <script src="js/fuse.js"></script>
+    <script src="js/jssor.js"></script>
+    <script src="js/jssor.slider.js"></script>
+    <script src="js/app.js"></script>
+  </body>
 </html>
