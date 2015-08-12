@@ -177,14 +177,22 @@ var parksVM = function() {
    */
   that.showParkInfo = function(){
 
-    var park = this;
+    var park = this,
+        previousPark = that.currentPark();
 
     //hide results list, if shown (to prevent windows overlay)
     $('.results-wrapper').hide();
 
+    //remove animation from the previously selected park (if any)
+    if (typeof previousPark !== 'undefined'){
+      previousPark.mapMarker.setAnimation(null);
+    }
+
+    //set new park as current
     that.currentPark(park);
 
     park.centerMap();
+    park.mapMarker.setAnimation(google.maps.Animation.BOUNCE);
     proccessBasicInfo(park);
 
     $('#slider1_container').html('');
@@ -587,8 +595,8 @@ $('#search-input').on('keyup', function(e){
 
 $('#current-selection').on('click', '.close', function(e){
   "use strict";
+  App.parksVM.currentPark().mapMarker.setAnimation(null);
   $('#current-selection').hide(300);
-  //App.map.fitBounds(App.mapBounds);
 });
 
 $('#messages').on('click', '.alert', function(e){
