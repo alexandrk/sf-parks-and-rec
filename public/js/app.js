@@ -688,9 +688,15 @@ function initializeSlider(containerId){
 
 /** -------------------------------| Execution Flow |---------------------------- */
 
+function mapInitCallback(){
+  App.map = mapInit('map-canvas');
+  
+  App.parksVM = new parksVM();
+  App.getParksList();
+}
 
 // Initialize Google Map
-App.map = mapInit('map-canvas');
+//App.map = mapInit('map-canvas');
 
-App.parksVM = new parksVM();
-App.getParksList();
+// App.parksVM = new parksVM();
+// App.getParksList();
