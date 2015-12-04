@@ -688,9 +688,9 @@ function initializeSlider(containerId){
 
 /** -------------------------------| Execution Flow |---------------------------- */
 
-
-// Initialize Google Map
-App.map = mapInit('map-canvas');
-
-App.parksVM = new parksVM();
-App.getParksList();
+function mapInitCallback(){
+  App.map = mapInit('map-canvas');
+  
+  App.parksVM = new parksVM();
+  App.getParksList();
+}
