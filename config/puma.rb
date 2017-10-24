@@ -5,5 +5,5 @@ threads threads_count, threads_count
 preload_app!
 
 rackup      DefaultRackup
-port        5003  #ENV['PORT']     || 3000
+port        ENV['PORT']     || 3000
 environment ENV['RACK_ENV'] || 'development'
