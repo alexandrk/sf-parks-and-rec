@@ -1,2 +1,2 @@
-require './services/oauth.rb'
+require './oauth.rb'
 run Sinatra::Application

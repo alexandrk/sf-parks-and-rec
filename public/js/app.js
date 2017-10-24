@@ -200,7 +200,7 @@ var parksVM = function() {
     $('#current-selection').show();
 
     // Get nearby Instagram data, Note: display Instagram data function is called as on event handler
-    getInstagramData(park, {test: false});
+    //getInstagramData(park, {test: false});
 
     // Get Yelp Data (review and rating)
     getYelpData(park, {test: false});
@@ -334,7 +334,7 @@ function getInstagramData(park, params){
   "use strict";
   var resource_INSTAGRAM;
   resource_INSTAGRAM = (params.test) ?
-      "http://localhost:4567/instagram" :
+      "http://localhost:5003/instagram" :
       "https://sfparksrec.herokuapp.com/instagram";
 
   var $slideshowLoading = $('#slideshow-wrapper').find('.loading');
@@ -462,7 +462,7 @@ function proccessInstagramData(park){
 function getYelpData(park, params){
   "use strict";
   var resource_YELP = (params.test) ?
-                        "http://localhost:4567/yelp" :
+                        "http://localhost:5003/yelp" :
                         "https://sfparksrec.herokuapp.com/yelp",
 
       $yelpDataLoading = $('#yelp-data-wrapper').find('.loading');
@@ -542,11 +542,11 @@ function processYelpData(){
 
     yelpData = "<div class='row'>" +
     "<div class='col-xs-4'>" + park.yelpData.name + "</div>" +
-      "<div class='col-xs-4'><img src='" + park.yelpData.rating_img + "' /></div>" +
+      "<div class='col-xs-4'>"+ park.yelpData.rating +" out of 5 stars</div>" +
       "<div class='col-xs-4'>" + park.yelpData.review_count + " reviews</div>" +
     "</div>" +
-    "<div class='example-review'>" + park.yelpData.example_review +
-      "<a href='" + park.yelpData.url + "' target='_blank'> Read More" + "</a>" +
+    "<div class='example-review'>" +
+      "<a href='" + park.yelpData.url + "' target='_blank'>View Yelp Profile" + "</a>" +
     "</div>";
     $('#yelp-data').html(yelpData);
   }
